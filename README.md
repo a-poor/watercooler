@@ -1,7 +1,6 @@
-# Tauri + React + Typescript
+# WaterCooler
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+_created by Austin Poor_
 
-## Recommended IDE Setup
+WaterCooler is an open source, desktop GUI for interacting with ChatGPT, created with [Tauri](https://tauri.app).
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
