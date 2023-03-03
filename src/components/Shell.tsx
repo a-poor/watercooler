@@ -1,5 +1,6 @@
-import { AppShell, Navbar, NavLink, ScrollArea, Text, Divider } from '@mantine/core';
-import { IconSettings, IconPlus, IconTrash } from '@tabler/icons-react';
+import { AppShell, Navbar, NavLink, ScrollArea, Text, Divider, ActionIcon, Space } from '@mantine/core';
+import { IconSettings, IconPlus, IconTrash, IconEdit, IconX } from '@tabler/icons-react';
+
 
 export interface IChatItem {
   id: number;
@@ -13,7 +14,7 @@ export interface INavProps {
   onNewChat?: () => void;
   onOpenSettings?: () => void;
   onClickChat?: (id: number) => void;
-  onEditChatName?: (id: number, name: string) => void;
+  onEditChatName?: (id: number) => void;
   onDeleteChat?: (id: number) => void;
   onClearChats?: () => void;
 }
@@ -27,17 +28,34 @@ export function Nav({ settingsIsOpen, activeChatId, chatItems, onClickChat, onNe
           icon={<IconPlus size={18} stroke={1.5} />}
           onClick={onNewChat}
           active={!settingsIsOpen && !activeChatId}
+          variant="subtle"
         />
       </Navbar.Section>
       <Divider />
-      <Navbar.Section grow component={ScrollArea}>
+      <Navbar.Section grow sx={{ overflowX: 'hidden' }}>
         {chatItems && chatItems.map(c => (
           <NavLink
+            w="100%"
             key={c.id}
-            label={<Text fz="md">{ c.name || `Chat ${c.id}` }</Text>} 
+            label={(
+              <Text fz="md" truncate="end">
+                { c.name || `Chat ${c.id}` }
+              </Text>
+            )}
             icon={<IconPlus size={18} stroke={1.5} />}
-            onClick={() => onClickChat && onClickChat(c.id)}
+            onClick={() => onClickChat?.(c.id)}
             active={!settingsIsOpen && activeChatId === c.id}
+            rightSection={!settingsIsOpen && activeChatId === c.id && (
+              <>
+                <ActionIcon variant="subtle" onClick={() => onEditChatName?.(c.id)}>
+                  <IconEdit size={18} stroke={1.5} />
+                </ActionIcon>
+                <Space w={3}/>
+                <ActionIcon variant="subtle" onClick={() => onDeleteChat?.(c.id)}>
+                  <IconX size={18} stroke={1.5} />
+                </ActionIcon>
+              </>
+            )}
           />
         ))}
       </Navbar.Section>
@@ -67,30 +85,17 @@ export interface IShellProps {
   onNewChat?: () => void;
   onOpenSettings?: () => void;
   onClickChat?: (id: number) => void;
-  onEditChatName?: (id: number, name: string) => void;
+  onEditChatName?: (id: number) => void;
   onDeleteChat?: (id: number) => void;
   onClearChats?: () => void;
 }
 
-export function Shell({ children, settingsIsOpen, activeChatId, chatItems, onClickChat, onNewChat, onOpenSettings, onEditChatName, onDeleteChat, onClearChats }: IShellProps) {
+function Shell({ children, ...props }: IShellProps) {
   return (
-    <AppShell
-      navbar={(
-        <Nav 
-          settingsIsOpen={settingsIsOpen}
-          activeChatId={activeChatId}
-          chatItems={chatItems}
-          onClickChat={onClickChat}
-          onNewChat={onNewChat}
-          onOpenSettings={onOpenSettings}
-          onEditChatName={onEditChatName}
-          onDeleteChat={onDeleteChat}
-          onClearChats={onClearChats}
-        />
-      )}
-    >
+    <AppShell navbar={<Nav {...props}/>}>
       { children }
     </AppShell>
   );
 }
+export default Shell;
 
