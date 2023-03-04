@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useReducer } from 'react';
 import { MantineProvider, Text } from '@mantine/core';
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
@@ -27,6 +27,7 @@ const defaultConfig = {
 function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [activeChatId, setActiveChatId] = useState<number | undefined>(undefined);
+
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
       <Shell 
