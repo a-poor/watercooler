@@ -3,6 +3,8 @@
 
 use tauri::api::path::{app_config_dir, app_data_dir};
 mod settings;
+mod api;
+mod storage;
 
 
 fn main() {
@@ -38,6 +40,7 @@ fn main() {
             settings::get_settings,
             settings::get_default_settings,
             settings::set_settings,
+            api::send_chat_request,
         ])
         .run(ctx)
         .expect("error while running tauri application");

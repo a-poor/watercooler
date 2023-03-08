@@ -1,18 +1,28 @@
 use serde::{Serialize, Deserialize};
+use anyhow::anyhow;
 
-
+/// The user's configurable settings.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Settings {
-    api_host: String,
-    model: String,
-    api_token: String,
-    system_prompt: String,
+    /// The base URL for the OpenAI API.
+    /// 
+    /// Defaults to "https://api.openai.com".
+    pub api_base_url: String,
+
+    /// The model to use for chat completion.
+    pub model: String,
+
+    /// The user's OpenAI API token.
+    pub api_token: String,
+
+    /// The initial system prompt.
+    pub system_prompt: String,
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            api_host: "https://api.openai.com".into(),
+            api_base_url: "https://api.openai.com".into(),
             model: "gpt-3.5-turbo".into(),
             api_token: "secret".into(),
             system_prompt: "You are a helpful assistant.".into(),
@@ -30,24 +40,31 @@ pub fn get_default_settings() -> Settings {
     Settings::default()
 }
 
-#[tauri::command]
-pub fn get_settings(state: tauri::State<AppState>) -> Result<Settings, String> {
+pub fn _get_settings(state: &AppState) -> anyhow::Result<Settings> {
     // Get the config path...
     let path = match state.config_dir {
         Some(ref p) => p.clone(),
-        None => return Err("Failed to get config path".into()),
+        None => return Err(anyhow!("Failed to get config path")),
     };
 
     // Read the raw settings file...
     let raw = match std::fs::read_to_string(path) {
         Ok(c) => c,
-        Err(_) => return Err("Failed to read settings".into()),
+        Err(_) => return Err(anyhow!("Failed to read settings")),
     };
 
     // Deserialize the settings json data...
-    match serde_json::from_str(&raw) {
-        Ok(s) => s,
-        Err(_) => Err("Failed to deserialize settings".into()),
+    match serde_json::from_str::<Settings>(raw.as_str()) {
+        Ok(s) => Ok(s),
+        Err(_) => Err(anyhow!("Failed to deserialize settings")),
+    }
+}
+
+#[tauri::command]
+pub fn get_settings(state: tauri::State<AppState>) -> Result<Settings, String> {
+    match _get_settings(&state) {
+        Ok(s) => Ok(s),
+        Err(_) => Err("Failed to get settings".into()),
     }
 }
 
@@ -71,3 +88,4 @@ pub fn set_settings(settings: Settings, state: tauri::State<AppState>) -> Result
         Err(_) => Err("Failed to write settings".into()),
     }
 }
+
