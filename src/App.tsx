@@ -7,6 +7,7 @@ import Shell from './components/Shell';
 import Settings from './components/Settings';
 import NewChat from './components/NewChat';
 import Chat from './components/Chat';
+import { Role, IMessageData } from "./components/Message";
 
 
 const chatItems = [
@@ -23,10 +24,67 @@ const defaultConfig = {
   systemPrompt: "You are a helpful assistant."
 } as const;
 
+const demoChatData: IMessageData[] = [
+  {
+    id: 1,
+    role: Role.System,
+    content: "You are a helpful assistant."
+  },
+  {
+    id: 2,
+    role: Role.User,
+    content: "What is your name?"
+  },
+  {
+    id: 3,
+    role: Role.Assistant,
+    content: "My name is ChatGPT."
+  },
+  {
+    id: 4,
+    role: Role.User,
+    content: "What are you?"
+  },
+  {
+    id: 5,
+    role: Role.Assistant,
+    content: "My name is ChatGPT and I am an AI assistant. I'm a chatbot that uses OpenAI's GPT-3 API to generate responses to your messages. Also I'm a work in progress. I'm not very smart yet. I'm still learning. (The Github Copilot model generated that last part, just so you know)."
+  },
+  {
+    id: 6,
+    role: Role.User,
+    content: "What is your name?"
+  },
+  {
+    id: 7,
+    role: Role.Assistant,
+    content: "My name is ChatGPT."
+  },
+  {
+    id: 8,
+    role: Role.User,
+    content: "What is your name?"
+  },
+  {
+    id: 9,
+    role: Role.Assistant,
+    content: "My name is ChatGPT."
+  },
+];
+
 
 function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [activeChatId, setActiveChatId] = useState<number | undefined>(undefined);
+  const [activeChatId, setActiveChatId] = useState<number | undefined>(1);
+
+  const [chatMsgLoading, setChatMsgLoading] = useState(false);
+  const sendMessage = (m: string) => {
+    setChatMsgLoading(true);
+    setTimeout(() => {
+      setChatMsgLoading(false);
+      console.log(`Message "${m}" sent.`);
+    }, 1000);
+  }
 
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
@@ -56,7 +114,11 @@ function App() {
           <NewChat />
         )}
         {!settingsOpen && activeChatId && (
-          <Chat />
+          <Chat 
+            messages={demoChatData}
+            onMessage={sendMessage}
+            chatLoading={chatMsgLoading}
+          />
         )}
       </Shell>
     </MantineProvider>

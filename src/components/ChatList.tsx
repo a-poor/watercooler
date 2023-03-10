@@ -1,34 +1,35 @@
-import { Box, ScrollArea, Text } from '@mantine/core';
-
-export enum Role {
-  System = "system",
-  User = "user",
-  Assistant = "assistant",
-}
-
-export interface IMessage {
-  id: number;
-  role: Role;
-  content: string;
-}
+import { useRef, useEffect } from "react";
+import { Transition, ScrollArea, Divider } from '@mantine/core';
+import Message, { IMessageData } from "./Message";
 
 export interface IChatListProps {
-  messages: IMessage[];
+  messages: IMessageData[];
 }
 
 function ChatList({ messages }: IChatListProps) {
+  const viewport = useRef<HTMLDivElement>(null);
+  const scrollToBottom = () => viewport?.current?.scrollTo({ 
+    top: viewport.current.scrollHeight, 
+    behavior: 'smooth',
+  });
+  useEffect(() => scrollToBottom(), [messages]);
   return (
-    <Box>
-      <ScrollArea>
-        {messages.map(m => (
-          <Box key={m.id}>
-            <Text>
-              { m.content }
-            </Text>
-          </Box>
-        ))}
-      </ScrollArea>
-    </Box>
+    <ScrollArea offsetScrollbars style={{flexGrow: 1}} viewportRef={viewport}>
+      {messages.map((m, i) => (
+        <div key={i}>
+          {i > 0 && <Divider />}
+          <Transition mounted={true} transition="fade" duration={400} timingFunction="ease">
+            {(styles) => (
+              <div style={styles}>
+                <Message 
+                  message={m} 
+                />
+              </div>
+            )}
+          </Transition>
+        </div>
+      ))}
+    </ScrollArea>
   );
 }
 export default ChatList;

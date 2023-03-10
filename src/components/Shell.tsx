@@ -44,6 +44,7 @@ export function Nav({ settingsIsOpen, activeChatId, chatItems, onClickChat, onNe
             )}
             icon={<IconPlus size={18} stroke={1.5} />}
             onClick={() => onClickChat?.(c.id)}
+            component={!settingsIsOpen && activeChatId === c.id ? "div" : "button"}
             active={!settingsIsOpen && activeChatId === c.id}
             rightSection={!settingsIsOpen && activeChatId === c.id && (
               <>
@@ -92,7 +93,14 @@ export interface IShellProps {
 
 function Shell({ children, ...props }: IShellProps) {
   return (
-    <AppShell navbar={<Nav {...props}/>}>
+    <AppShell 
+      navbar={<Nav {...props}/>} 
+      styles={{main: {
+        width: "100%",
+        height: "100vh",
+        overflow: "hidden",
+      }}}
+    >
       { children }
     </AppShell>
   );
