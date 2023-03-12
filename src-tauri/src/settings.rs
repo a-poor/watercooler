@@ -1,5 +1,7 @@
-use serde::{Serialize, Deserialize};
+use std::sync::Mutex;
 use anyhow::anyhow;
+use rusqlite::Connection;
+use serde::{Serialize, Deserialize};
 
 /// The user's configurable settings.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -35,8 +37,9 @@ impl Default for Settings {
 }
 
 pub struct AppState {
-    pub config_dir: Option<String>,
-    pub data_dir: Option<String>,
+    pub config_file_path: Option<String>,
+    pub data_db_path: Option<String>,
+    pub db_conn: Option<Mutex<Connection>>,
 }
 
 #[tauri::command]
@@ -46,7 +49,7 @@ pub fn get_default_settings() -> Settings {
 
 pub fn _get_settings(state: &AppState) -> anyhow::Result<Settings> {
     // Get the config path...
-    let path = match state.config_dir {
+    let path = match state.config_file_path {
         Some(ref p) => p.clone(),
         None => return Err(anyhow!("Failed to get config path")),
     };
@@ -81,7 +84,7 @@ pub fn set_settings(settings: Settings, state: tauri::State<AppState>) -> Result
     };
 
     // Get the config path...
-    let path = match state.config_dir {
+    let path = match state.config_file_path {
         Some(ref p) => p.clone(),
         None => return Err("Failed to get config path".into()),
     };
