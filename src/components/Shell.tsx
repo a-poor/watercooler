@@ -1,5 +1,5 @@
-import { AppShell, Navbar, NavLink, ScrollArea, Text, Divider, ActionIcon, Space } from '@mantine/core';
-import { IconSettings, IconPlus, IconTrash, IconEdit, IconX } from '@tabler/icons-react';
+import { AppShell, Navbar, NavLink, Tooltip, Text, Divider, ActionIcon, Space } from '@mantine/core';
+import { IconSettings, IconPlus, IconTrash, IconEdit, IconX, IconMessageCircle } from '@tabler/icons-react';
 
 
 export interface IChatItem {
@@ -42,19 +42,23 @@ export function Nav({ settingsIsOpen, activeChatId, chatItems, onClickChat, onNe
                 { c.name || `Chat ${c.id}` }
               </Text>
             )}
-            icon={<IconPlus size={18} stroke={1.5} />}
+            icon={<IconMessageCircle size={18} stroke={1.5} />}
             onClick={() => onClickChat?.(c.id)}
             component={!settingsIsOpen && activeChatId === c.id ? "div" : "button"}
             active={!settingsIsOpen && activeChatId === c.id}
             rightSection={!settingsIsOpen && activeChatId === c.id && (
               <>
-                <ActionIcon variant="subtle" onClick={() => onEditChatName?.(c.id)}>
-                  <IconEdit size={18} stroke={1.5} />
-                </ActionIcon>
+                <Tooltip label="Rename Chat">
+                  <ActionIcon variant="subtle" onClick={() => onEditChatName?.(c.id)}>
+                    <IconEdit size={18} stroke={1.5} />
+                  </ActionIcon>
+                </Tooltip>
                 <Space w={3}/>
-                <ActionIcon variant="subtle" onClick={() => onDeleteChat?.(c.id)}>
-                  <IconX size={18} stroke={1.5} />
-                </ActionIcon>
+                <Tooltip label="Delete Chat">
+                  <ActionIcon variant="subtle" onClick={() => onDeleteChat?.(c.id)}>
+                    <IconX size={18} stroke={1.5} />
+                  </ActionIcon>
+                </Tooltip>
               </>
             )}
           />
@@ -63,7 +67,7 @@ export function Nav({ settingsIsOpen, activeChatId, chatItems, onClickChat, onNe
       <Divider />
       <Navbar.Section>
         <NavLink 
-          label={<Text fz="md">Clear Chats</Text>} 
+          label={<Text fz="md">Clear All Chats</Text>} 
           icon={<IconTrash size={18} stroke={1.5} />}
           onClick={onClearChats}
         />

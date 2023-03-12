@@ -104,15 +104,16 @@ pub struct ChatMessage {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatRequest {
+    #[serde(rename = "chatId")]
     pub chat_id: i64,
     pub messages: Vec<ChatMessage>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatResponse {
+    #[serde(rename = "chatId")]
     pub chat_id: i64,
     pub messages: Vec<ChatMessage>,
-    pub response: ChatMessage,
 }
 
 #[tauri::command]
@@ -155,15 +156,17 @@ pub async fn send_chat_request(state: tauri::State<'_, Mutex<AppState>>, request
     let CompletionChoice{index: id, message, finish_reason: _} = c;
     let CompletionChoiceMessage{role, content} = message;
 
+    let mut messages = request.messages.clone();
+    messages.push(ChatMessage {
+        id,
+        role,
+        content,
+    });
+
     // Format the response and return...
     Ok(ChatResponse {
         chat_id: request.chat_id,
-        messages: request.messages,
-        response: ChatMessage {
-            id,
-            role,
-            content,
-        },
+        messages,
     })
 }
 

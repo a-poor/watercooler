@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Transition, ScrollArea, Divider } from '@mantine/core';
 import Message, { IMessageData } from "./Message";
 
@@ -12,21 +12,15 @@ function ChatList({ messages }: IChatListProps) {
     top: viewport.current.scrollHeight, 
     behavior: 'smooth',
   });
-  useEffect(() => scrollToBottom(), [messages]);
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
   return (
     <ScrollArea offsetScrollbars style={{flexGrow: 1}} viewportRef={viewport}>
       {messages.map((m, i) => (
         <div key={i}>
           {i > 0 && <Divider />}
-          <Transition mounted={true} transition="fade" duration={400} timingFunction="ease">
-            {(styles) => (
-              <div style={styles}>
-                <Message 
-                  message={m} 
-                />
-              </div>
-            )}
-          </Transition>
+          <Message message={m} />
         </div>
       ))}
     </ScrollArea>

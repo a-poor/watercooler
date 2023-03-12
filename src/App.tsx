@@ -1,6 +1,5 @@
-import { useState, useReducer } from 'react';
-import { MantineProvider, Text } from '@mantine/core';
-import { invoke } from "@tauri-apps/api/tauri";
+import { useState } from 'react';
+import { MantineProvider } from '@mantine/core';
 import "./App.css";
 
 import Shell from './components/Shell';
@@ -50,32 +49,12 @@ const demoChatData: IMessageData[] = [
     role: Role.Assistant,
     content: "My name is ChatGPT and I am an AI assistant. I'm a chatbot that uses OpenAI's GPT-3 API to generate responses to your messages. Also I'm a work in progress. I'm not very smart yet. I'm still learning. (The Github Copilot model generated that last part, just so you know)."
   },
-  {
-    id: 6,
-    role: Role.User,
-    content: "What is your name?"
-  },
-  {
-    id: 7,
-    role: Role.Assistant,
-    content: "My name is ChatGPT."
-  },
-  {
-    id: 8,
-    role: Role.User,
-    content: "What is your name?"
-  },
-  {
-    id: 9,
-    role: Role.Assistant,
-    content: "My name is ChatGPT."
-  },
 ];
 
 
 function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [activeChatId, setActiveChatId] = useState<number | undefined>(1);
+  const [activeChatId, setActiveChatId] = useState<number | undefined>(undefined);
 
   const [chatMsgLoading, setChatMsgLoading] = useState(false);
   const sendMessage = (m: string) => {

@@ -7,15 +7,19 @@ pub struct Settings {
     /// The base URL for the OpenAI API.
     /// 
     /// Defaults to "https://api.openai.com".
+    #[serde(rename = "apiBaseUrl")]
     pub api_base_url: String,
 
     /// The model to use for chat completion.
+    #[serde(rename = "model")]
     pub model: String,
 
     /// The user's OpenAI API token.
+    #[serde(rename = "apiToken")]
     pub api_token: String,
 
     /// The initial system prompt.
+    #[serde(rename = "systemPrompt")]
     pub system_prompt: String,
 }
 
