@@ -34,7 +34,35 @@ fn main() {
         Some(ref p) => {
             let c = Connection::open(p);
             match c {
-                Ok(c) => Some(Mutex::new(c)), // TODO - Run the schema create statements, if necessary...
+                Ok(c) => {
+                    // Create the tables if they don't exist...
+                    let s = "CREATE TABLE IF NOT EXISTS chats (
+                        id INT,
+                        name TEXT
+                    );";
+                    match c.execute(s, []) {
+                        Ok(_) => {},
+                        Err(err) => {
+                            println!("Failed to create chats table: {}", err);
+                        },
+                    };
+                    let s = "CREATE TABLE IF NOT EXISTS chat_messages (
+                        id INT,
+                        chat_id INT,
+                        role TEXT,
+                        content TEXT,
+                        name TEXT
+                    );";
+                    match c.execute(s, []) {
+                        Ok(_) => {},
+                        Err(err) => {
+                            println!("Failed to create chats table: {}", err);
+                        },
+                    };
+
+                    // Return the connection...
+                    Some(Mutex::new(c))
+                },
                 Err(err) => {
                     println!("Failed to open database: {}", err);
                     None
@@ -62,6 +90,9 @@ fn main() {
             settings::get_default_settings,
             settings::set_settings,
             api::send_chat_request,
+            storage::list_chats,
+            storage::add_chat,
+            storage::delete_chat,
         ])
         .run(ctx)
         .expect("error while running tauri application");

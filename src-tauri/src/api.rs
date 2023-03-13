@@ -30,7 +30,6 @@ struct CreateChatCompletionRequest {
 struct ChatMessageEntry {
     role: String,
     content: String,
-    name: String,
 }
 
 
@@ -137,7 +136,6 @@ pub async fn send_chat_request(state: tauri::State<'_, Mutex<AppState>>, request
         messages: request.messages.iter().map(|m| ChatMessageEntry {
             role: m.role.clone(),
             content: m.content.clone(),
-            name: "User".into(),
         }).collect(),
     };
 

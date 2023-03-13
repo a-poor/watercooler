@@ -41,19 +41,43 @@ pub fn list_chats(state: tauri::State<'_, AppState>) -> Result<Vec<Chat>, String
 }
 
 #[tauri::command]
-pub fn add_chat(state: tauri::State<'_, AppState>, name: String) -> Result<(), String> {
+pub fn add_chat(state: tauri::State<'_, AppState>, name: String) -> Result<i64, String> {
     // Get the database connection...
     let conn = match &state.db_conn {
         Some(c) => c,
         None => return Err("Failed to get database connection".into()),
     };
 
+    let conn = match conn.lock() {
+        Ok(c) => c,
+        Err(e) => return Err(e.to_string()),
+    };
+
+    // Get the next chat ID (current max + 1)...
+    let mut stmt = match conn.prepare("SELECT MAX(id) FROM chats;") {
+        Ok(s) => s,
+        Err(e) => return Err(e.to_string()),
+    };
+
+    let id = match stmt.query_row([], |row| {
+        match row.get::<_, i64>(0) {
+            Ok(i) => Ok(i + 1),
+            Err(_) => Ok(1),
+        }
+    }) {
+        Ok(i) => i,
+        Err(e) => return Err(e.to_string()),
+    };
+
+
     // Add the chat...
-    let conn = conn.lock().unwrap();
-    conn.execute("INSERT INTO chats (name) VALUES (?)", [name]).unwrap();
+    match conn.execute("INSERT INTO chats (id, name) VALUES (id, ?);", (id, name)) {
+        Ok(_) => (),
+        Err(e) => return Err(e.to_string()),
+    };
 
     // Return success...
-    Ok(())
+    Ok(id)
 }
 
 #[tauri::command]
