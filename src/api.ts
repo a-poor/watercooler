@@ -54,3 +54,72 @@ export async function sendChatRequest(req: ChatRequestType): Promise<ChatRespons
     return parsed;
 }
 
+export const ChatSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+});
+
+export type ChatType = z.infer<typeof ChatSchema>;
+
+export const ChatMessageSchema = z.object({
+    id: z.number(),
+    chatId: z.number(),
+    role: z.string(),
+    content: z.string(),
+});
+
+export type ChatMessageType = z.infer<typeof ChatMessageSchema>;
+
+export const ListChatsResponseSchema = z.array(ChatSchema);
+
+export type ListChatsResponseType = z.infer<typeof ListChatsResponseSchema>;
+
+export async function listChats(): Promise<ListChatsResponseType> {
+    const res = await invoke("list_chats");
+    const parsed = ListChatsResponseSchema.parse(res);
+    return parsed;
+}
+
+export const AddChatResponseSchema = z.object({
+    id: z.number(),
+});
+
+export type AddChatResponseType = z.infer<typeof AddChatResponseSchema>;
+
+export async function addChat({ name }: { name: string }) {
+    const res = await invoke("add_chat", { name });
+    const parsed = AddChatResponseSchema.parse(res);
+    return parsed;
+}
+
+export async function deleteChat({ id }: { id: number }) {
+    await invoke("delete_chat", { id });
+}
+
+export const GetMessagesResponseSchema = z.array(ChatMessageSchema);
+
+export type GetMessagesResponseType = z.infer<typeof GetMessagesResponseSchema>;
+
+export async function getMessages({ chatId }: { chatId: number }): Promise<GetMessagesResponseType> {
+    const res = await invoke("get_messages", { chatId });
+    const parsed = GetMessagesResponseSchema.parse(res);
+    return parsed;
+}
+
+export const AddMessageResponseSchema = z.number();
+
+export type AddMessageResponseType = z.infer<typeof AddMessageResponseSchema>;
+
+export async function addMessage({chatId, role, content}: {chatId: number, role: String, content: string}): Promise<AddMessageResponseType> {
+    const res = await invoke("add_message", {chatId, role, content});
+    const parsed = AddMessageResponseSchema.parse(res);
+    return parsed;
+}
+
+export async function deleteMessage({chatId, messageId}: {chatId: number, messageId: number}) {
+    await invoke("delete_message", {
+        chatId,
+        id: messageId,
+    });
+}
+

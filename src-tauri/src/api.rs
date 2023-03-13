@@ -1,7 +1,10 @@
 use anyhow::anyhow;
 use serde::{Serialize, Deserialize};
 use tauri::async_runtime::Mutex;
-use crate::settings::{AppState, _get_settings};
+use crate::{
+    storage::_add_message,
+    settings::{AppState, _get_settings}
+};
 
 
 const CHAT_COMPLETION_PATH: &str = "/v1/chat/completions";
@@ -151,8 +154,19 @@ pub async fn send_chat_request(state: tauri::State<'_, Mutex<AppState>>, request
         None => return Err("No choices returned".into()),
     };
 
-    let CompletionChoice{index: id, message, finish_reason: _} = c;
+    let CompletionChoice{index: _, message, finish_reason: _} = c;
     let CompletionChoiceMessage{role, content} = message;
+
+    // Add the message to the database...
+    let id = match &state.db_conn {
+        Some(db_conn) => {
+            match _add_message(db_conn, request.chat_id, role.clone(), content.clone()) {
+                Ok(id) => id,
+                Err(e) => return Err(e.to_string()),
+            }
+        },
+        None => return Err("Database connection not found".into()),
+    };
 
     let mut messages = request.messages.clone();
     messages.push(ChatMessage {

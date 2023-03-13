@@ -50,8 +50,7 @@ fn main() {
                         id INT,
                         chat_id INT,
                         role TEXT,
-                        content TEXT,
-                        name TEXT
+                        content TEXT
                     );";
                     match c.execute(s, []) {
                         Ok(_) => {},
@@ -93,6 +92,9 @@ fn main() {
             storage::list_chats,
             storage::add_chat,
             storage::delete_chat,
+            storage::get_messages,
+            storage::add_message,
+            storage::delete_message,
         ])
         .run(ctx)
         .expect("error while running tauri application");
