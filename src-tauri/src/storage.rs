@@ -6,7 +6,7 @@ use crate::settings::AppState;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Chat {
     pub id: i64,
-    pub name: String,
+    pub name: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -89,7 +89,7 @@ pub fn add_chat(state: tauri::State<'_, AppState>, name: Option<String>) -> Resu
 
 
     // Add the chat...
-    match conn.execute("INSERT INTO chats (id, name) VALUES (id, ?);", (id, name)) {
+    match conn.execute("INSERT INTO chats (id, name) VALUES (?, ?);", (id, name)) {
         Ok(_) => (),
         Err(e) => return Err(e.to_string()),
     };

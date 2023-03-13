@@ -10,42 +10,6 @@ import { Role, IMessageData } from "./components/Message";
 import * as api from './api';
 
 
-// const chatItems = [
-//   {id: 1, name: "Chat 1: How to write a blog post?"},
-//   {id: 2, name: "Chat 2"},
-//   {id: 3, name: "Chat 3"},
-//   {id: 4, name: "Chat 4"},
-// ];
-
-const demoChatData: IMessageData[] = [
-  {
-    id: 1,
-    role: Role.System,
-    content: "You are a helpful assistant."
-  },
-  {
-    id: 2,
-    role: Role.User,
-    content: "What is your name?"
-  },
-  {
-    id: 3,
-    role: Role.Assistant,
-    content: "My name is ChatGPT."
-  },
-  {
-    id: 4,
-    role: Role.User,
-    content: "What are you?"
-  },
-  {
-    id: 5,
-    role: Role.Assistant,
-    content: "My name is ChatGPT and I am an AI assistant. I'm a chatbot that uses OpenAI's GPT-3 API to generate responses to your messages. Also I'm a work in progress. I'm not very smart yet. I'm still learning. (The Github Copilot model generated that last part, just so you know)."
-  },
-];
-
-
 function App() {
   // App page state...
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -103,9 +67,9 @@ function App() {
   // Configure hook to create new chat...
   const onNewChat = () => api
     .addChat({})
-    .then(d => {
+    .then(id => {
       setSettingsOpen(false);
-      setActiveChatId(d.id);
+      setActiveChatId(id);
     })
     .then(() => api.listChats())
     .then((chats) => setChatItems(chats))
@@ -143,7 +107,7 @@ function App() {
         )}
         {!settingsOpen && activeChatId && (
           <Chat 
-            messages={demoChatData}
+            messages={chatMessages}
             onMessage={sendMessage}
             chatLoading={chatMsgLoading}
           />

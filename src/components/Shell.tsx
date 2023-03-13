@@ -4,7 +4,7 @@ import { IconSettings, IconPlus, IconTrash, IconEdit, IconX, IconMessageCircle }
 
 export interface IChatItem {
   id: number;
-  name?: string;
+  name?: string | null;
 }
 
 export interface INavProps {

@@ -67,7 +67,7 @@ export async function sendChatRequest(req: ChatRequestType): Promise<ChatRespons
 
 export const ChatSchema = z.object({
     id: z.number(),
-    name: z.string().optional(),
+    name: z.string().optional().nullable(),
 });
 
 export type ChatType = z.infer<typeof ChatSchema>;
@@ -87,18 +87,18 @@ export type ListChatsResponseType = z.infer<typeof ListChatsResponseSchema>;
 
 export async function listChats(): Promise<ListChatsResponseType> {
     const res = await invoke("list_chats");
+    console.debug(`listChats result: ${JSON.stringify(res)}}`);
     const parsed = ListChatsResponseSchema.parse(res);
     return parsed;
 }
 
-export const AddChatResponseSchema = z.object({
-    id: z.number(),
-});
+export const AddChatResponseSchema = z.number();
 
 export type AddChatResponseType = z.infer<typeof AddChatResponseSchema>;
 
 export async function addChat({ name }: { name?: string }) {
     const res = await invoke("add_chat", { name });
+    console.debug(`addChat result: ${JSON.stringify(res)}}`);
     const parsed = AddChatResponseSchema.parse(res);
     return parsed;
 }
