@@ -134,16 +134,9 @@ pub fn delete_chat(state: tauri::State<'_, AppState>, id: i64) -> Result<(), Str
     Ok(())
 }
 
-#[tauri::command]
-pub fn get_messages(state: tauri::State<'_, AppState>, chat_id: i64) -> Result<Vec<ChatMessage>, String> {
-    // Get the database connection...
-    let conn = match &state.db_conn {
-        Some(c) => c,
-        None => return Err("Failed to get database connection".into()),
-    };
-
+pub fn _get_messages(db_conn: &Mutex<Connection>, chat_id: i64) -> Result<Vec<ChatMessage>, String> {
     // Get the messages...
-    let conn = match conn.lock() {
+    let conn = match db_conn.lock() {
         Ok(c) => c,
         Err(e) => return Err(e.to_string()),
     };
@@ -173,6 +166,15 @@ pub fn get_messages(state: tauri::State<'_, AppState>, chat_id: i64) -> Result<V
         }
     }
     Ok(res)
+}
+
+#[tauri::command]
+pub fn get_messages(state: tauri::State<'_, AppState>, chat_id: i64) -> Result<Vec<ChatMessage>, String> {
+    let conn = match &state.db_conn {
+        Some(c) => c,
+        None => return Err("Failed to get database connection".into()),
+    };
+    _get_messages(conn, chat_id)
 }
 
 pub fn _add_message(conn: &Mutex<Connection>, chat_id: i64, role: String, content: String) -> Result<i64, String> {
