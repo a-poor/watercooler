@@ -59,7 +59,7 @@ pub fn list_chats(state: tauri::State<'_, AppState>) -> Result<Vec<Chat>, String
 }
 
 #[tauri::command]
-pub fn add_chat(state: tauri::State<'_, AppState>, name: String) -> Result<i64, String> {
+pub fn add_chat(state: tauri::State<'_, AppState>, name: Option<String>) -> Result<i64, String> {
     // Get the database connection...
     let conn = match &state.db_conn {
         Some(c) => c,
@@ -97,6 +97,8 @@ pub fn add_chat(state: tauri::State<'_, AppState>, name: String) -> Result<i64, 
     // Return success...
     Ok(id)
 }
+
+// TODO - Add function to rename chat...
 
 #[tauri::command]
 pub fn delete_chat(state: tauri::State<'_, AppState>, id: i64) -> Result<(), String> {

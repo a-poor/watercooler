@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/tauri";
 import { z } from "zod";
+import { Role } from './components/Message';
 
 export const SettingsSchema = z.object({
     apiBaseUrl: z.string(),
@@ -26,23 +27,33 @@ export async function setSettings(settings: SettingsType): Promise<void> {
     await invoke("set_settings", { settings });
 }
 
+export async function getSettingsOrSetDefault(): Promise<SettingsType> {
+    try {
+        return await getSettings();
+    } catch (e) {
+        const settings = await getDefaultSettings();
+        await setSettings(settings);
+        return settings;
+    }
+}
+
 export const MessageSchema = z.object({
-    id: z.string(),
-    role: z.string(),
+    id: z.number(),
+    role: z.nativeEnum(Role),
     content: z.string(),
 });
 
 export type MessageType = z.infer<typeof MessageSchema>;
 
 export const ChatRequestSchema = z.object({
-    chatId: z.string(),
+    chatId: z.number(),
     messages: z.array(MessageSchema),
 });
 
 export type ChatRequestType = z.infer<typeof ChatRequestSchema>;
 
 export const ChatResponseSchema = z.object({
-    chatId: z.string(),
+    chatId: z.number(),
     messages: z.array(MessageSchema),
 });
 
@@ -56,7 +67,7 @@ export async function sendChatRequest(req: ChatRequestType): Promise<ChatRespons
 
 export const ChatSchema = z.object({
     id: z.number(),
-    name: z.string(),
+    name: z.string().optional(),
 });
 
 export type ChatType = z.infer<typeof ChatSchema>;
@@ -64,7 +75,7 @@ export type ChatType = z.infer<typeof ChatSchema>;
 export const ChatMessageSchema = z.object({
     id: z.number(),
     chatId: z.number(),
-    role: z.string(),
+    role: z.nativeEnum(Role),
     content: z.string(),
 });
 
@@ -86,7 +97,7 @@ export const AddChatResponseSchema = z.object({
 
 export type AddChatResponseType = z.infer<typeof AddChatResponseSchema>;
 
-export async function addChat({ name }: { name: string }) {
+export async function addChat({ name }: { name?: string }) {
     const res = await invoke("add_chat", { name });
     const parsed = AddChatResponseSchema.parse(res);
     return parsed;
@@ -110,7 +121,7 @@ export const AddMessageResponseSchema = z.number();
 
 export type AddMessageResponseType = z.infer<typeof AddMessageResponseSchema>;
 
-export async function addMessage({chatId, role, content}: {chatId: number, role: String, content: string}): Promise<AddMessageResponseType> {
+export async function addMessage({chatId, role, content}: {chatId: number, role: Role, content: string}): Promise<AddMessageResponseType> {
     const res = await invoke("add_message", {chatId, role, content});
     const parsed = AddMessageResponseSchema.parse(res);
     return parsed;

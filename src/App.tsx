@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MantineProvider } from '@mantine/core';
-import "./App.css";
 
 import Shell from './components/Shell';
 import Settings from './components/Settings';
@@ -8,20 +7,15 @@ import NewChat from './components/NewChat';
 import Chat from './components/Chat';
 import { Role, IMessageData } from "./components/Message";
 
+import * as api from './api';
 
-const chatItems = [
-  {id: 1, name: "Chat 1: How to write a blog post?"},
-  {id: 2, name: "Chat 2"},
-  {id: 3, name: "Chat 3"},
-  {id: 4, name: "Chat 4"},
-];
 
-const defaultConfig = {
-  apiHost: "https://api.openai.com",
-  model: "gpt-3.5-turbo",
-  apiToken: "secret",
-  systemPrompt: "You are a helpful assistant."
-} as const;
+// const chatItems = [
+//   {id: 1, name: "Chat 1: How to write a blog post?"},
+//   {id: 2, name: "Chat 2"},
+//   {id: 3, name: "Chat 3"},
+//   {id: 4, name: "Chat 4"},
+// ];
 
 const demoChatData: IMessageData[] = [
   {
@@ -53,17 +47,75 @@ const demoChatData: IMessageData[] = [
 
 
 function App() {
+  // App page state...
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [activeChatId, setActiveChatId] = useState<number | undefined>(undefined);
 
+  // Get and configure the app settings...
+  const [appSettings, setAppSettings] = useState<undefined | api.SettingsType>(undefined);
+  useEffect(() => {
+    api
+      .getSettingsOrSetDefault()
+      .then((settings) => setAppSettings(settings))
+      .catch(err => console.error(`Failed to get settings: ${err}`));
+  }, []);
+
+  // Get and configure the chat lists...
+  const [chatItems, setChatItems] = useState<api.ListChatsResponseType>([]);
+  useEffect(() => {
+    api
+      .listChats()
+      .then((chats) => setChatItems(chats))
+      .catch(err => console.error(`Failed to get chat list: ${err}`));
+  }, []);
+
+  // Create hook to set active chat...
+  const [activeChatId, _setActiveChatId] = useState<number | undefined>(undefined);
+  const [chatMessages, setChatMessages] = useState<IMessageData[]>([]);
+  const setActiveChatId = (cid: number | undefined) => {
+    // Set the active chat ID...
+    _setActiveChatId(cid);
+
+    // If it's an actual chat ID, get and set the messages...
+    if (cid) {
+      api
+        .getMessages({chatId: cid})
+        .then((chat) => {
+          console.log(`Got chat: ${chat}`);
+          setChatMessages(chat);
+        })
+        .catch(err => console.error(`Failed to get chat: ${err}`));
+    }
+  };
+
+  // Configure hook to send messages...
   const [chatMsgLoading, setChatMsgLoading] = useState(false);
   const sendMessage = (m: string) => {
-    setChatMsgLoading(true);
-    setTimeout(() => {
-      setChatMsgLoading(false);
-      console.log(`Message "${m}" sent.`);
-    }, 1000);
+    if (activeChatId !== undefined && !chatMsgLoading) {
+      setChatMsgLoading(true);
+      api
+        .sendChatRequest({chatId: activeChatId, messages: chatMessages})
+        .then(res => setChatMessages(res.messages))
+        .catch(err => console.error(`Failed to send message: ${err}`))
+        .finally(() => setChatMsgLoading(false));
+    }
   }
+
+  // Configure hook to create new chat...
+  const onNewChat = () => api
+    .addChat({})
+    .then(d => {
+      setSettingsOpen(false);
+      setActiveChatId(d.id);
+    })
+    .then(() => api.listChats())
+    .then((chats) => setChatItems(chats))
+    .catch(err => console.error(`Failed to add new chat: ${err}`));
+
+  // Create callback for editing chat name...
+  const onEditChatName = (cid: number) => console.log(`Editing chat: ${cid}`);
+
+  // Create callback for deleting chat...
+  const onDeleteChat = (cid: number) => console.log(`Deleting chat: ${cid}`);
 
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
@@ -76,21 +128,18 @@ function App() {
           setActiveChatId(cid);
           setSettingsOpen(false);
         }}
-        onNewChat={() => {
-          setActiveChatId(undefined);
-          setSettingsOpen(false);
-        }}
-        onEditChatName={(cid) => console.log(`Editing chat: ${cid}`)}
-        onDeleteChat={(cid) => console.log(`Deleting chat: ${cid}`)}
+        onNewChat={onNewChat}
+        onEditChatName={onEditChatName}
+        onDeleteChat={onDeleteChat}
       >
         {settingsOpen && (
           <Settings 
-            initialData={defaultConfig}
-            setConfigData={(data) => console.log(`Setting config data: ${JSON.stringify(data)}`)}
+            initialData={appSettings}
+            setConfigData={(data) => setAppSettings(data)}
           />
         )}
         {!settingsOpen && !activeChatId && (
-          <NewChat />
+          <NewChat onNewChat={onNewChat}/>
         )}
         {!settingsOpen && activeChatId && (
           <Chat 

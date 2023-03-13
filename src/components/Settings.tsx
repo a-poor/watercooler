@@ -1,13 +1,20 @@
 
+const defaultConfigData: IConfigData = {
+  apiBaseUrl: "",
+  model: "",
+  apiToken: "",
+  systemPrompt: "",
+};
+
 export interface IConfigData {
-  apiHost: string;
-  model: "gpt-3.5-turbo" | "gpt-3.5-turbo-0301" | string;
+  apiBaseUrl: string;
+  model: string;
   apiToken: string;
   systemPrompt: string;
 }
 
 export interface ISettingsProps {
-  initialData: IConfigData;
+  initialData?: IConfigData;
   setConfigData: (data: IConfigData) => void;
 }
 
