@@ -1,7 +1,7 @@
 use std::sync::Mutex;
 use rusqlite::Connection;
 use serde::{Serialize, Deserialize};
-use crate::settings::AppState;
+use crate::settings::{AppState, _get_settings};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Chat {
@@ -60,6 +60,12 @@ pub fn list_chats(state: tauri::State<'_, AppState>) -> Result<Vec<Chat>, String
 
 #[tauri::command]
 pub fn add_chat(state: tauri::State<'_, AppState>, name: Option<String>) -> Result<i64, String> {
+    // Get the settings (for later)...
+    let settings = match _get_settings(&state) {
+        Ok(s) => s,
+        Err(e) => return Err(format!("Failed to get settings: {}", e)),
+    };
+
     // Get the database connection...
     let conn = match &state.db_conn {
         Some(c) => c,
@@ -94,11 +100,19 @@ pub fn add_chat(state: tauri::State<'_, AppState>, name: Option<String>) -> Resu
         Err(e) => return Err(e.to_string()),
     };
 
+    // Add the initial system prompt...
+    match conn.execute(
+        "INSERT INTO chat_messages (id, chat_id, role, content) VALUES (?, ?, ?, ?);", 
+        (1, id, "system".to_string(), settings.system_prompt),
+    ) {
+        Ok(_) => (),
+        Err(e) => return Err(e.to_string()),
+    };
+
     // Return success...
     Ok(id)
 }
 
-// TODO - Add function to rename chat...
 #[tauri::command]
 pub fn rename_chat(state: tauri::State<'_, AppState>, id: i64, name: Option<String>) -> Result<(), String> {
     // Get the database connection...
@@ -218,7 +232,6 @@ pub fn _add_message(conn: &Mutex<Connection>, chat_id: i64, role: String, conten
         Ok(s) => s,
         Err(e) => return Err(e.to_string()),
     };
-
     let id = match stmt.query_row([chat_id], |row| {
         match row.get::<_, i64>(0) {
             Ok(i) => Ok(i + 1),
