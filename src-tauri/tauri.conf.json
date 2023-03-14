@@ -27,7 +27,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "dev.apoor.watercooler",
+      "identifier": "com.austinpoor.watercooler",
       "targets": "all"
     },
     "security": {
@@ -40,7 +40,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "WaterCooler Chat",
+        "title": "WaterCooler",
         "width": 800,
         "height": 600
       }
