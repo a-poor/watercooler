@@ -47,7 +47,8 @@ export type MessageType = z.infer<typeof MessageSchema>;
 
 export const ChatRequestSchema = z.object({
     chatId: z.number(),
-    messages: z.array(MessageSchema),
+    previousMessages: z.array(MessageSchema),
+    newMessage: z.string(),
 });
 
 export type ChatRequestType = z.infer<typeof ChatRequestSchema>;

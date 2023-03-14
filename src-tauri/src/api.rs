@@ -38,12 +38,12 @@ struct ChatMessageEntry {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct CreateChatCompletionResponse {
-    id: String,
-    object: String,
-    created: i64,
-    model: String,
+    id: Option<String>,
+    object: Option<String>,
+    created: Option<i64>,
+    model: Option<String>,
     choices: Vec<CompletionChoice>,
-    usage: CompletionUsage,
+    usage: Option<CompletionUsage>,
 }
 
 
@@ -51,7 +51,7 @@ struct CreateChatCompletionResponse {
 struct CompletionChoice {
     index: i64,
     message: CompletionChoiceMessage,
-    finish_reason: String,
+    finish_reason: Option<String>,
 }
 
 
@@ -108,7 +108,10 @@ pub struct ChatMessage {
 pub struct ChatRequest {
     #[serde(rename = "chatId")]
     pub chat_id: i64,
-    pub messages: Vec<ChatMessage>,
+    #[serde(rename = "previousMessages")]
+    pub previous_messages: Vec<ChatMessage>,
+    #[serde(rename = "newMessage")]
+    pub new_message: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -119,10 +122,7 @@ pub struct ChatResponse {
 }
 
 #[tauri::command]
-pub async fn send_chat_request(state: tauri::State<'_, Mutex<AppState>>, request: ChatRequest) -> Result<ChatResponse, String> {
-    // Get the app state...
-    let state = state.lock().await;
-
+pub async fn send_chat_request(state: tauri::State<'_, AppState>, request: ChatRequest) -> Result<ChatResponse, String> {
     // Get the settings...
     let settings = match _get_settings(&state) {
         Ok(s) => s,
@@ -134,12 +134,20 @@ pub async fn send_chat_request(state: tauri::State<'_, Mutex<AppState>>, request
     let url = settings.api_base_url;
 
     // Create the request...
-    let req = CreateChatCompletionRequest {
-        model: settings.model,
-        messages: request.messages.iter().map(|m| ChatMessageEntry {
+    let mut messages: Vec<_> = request
+        .previous_messages
+        .iter()
+        .map(|m| ChatMessageEntry {
             role: m.role.clone(),
             content: m.content.clone(),
-        }).collect(),
+        }).collect();
+    messages.push(ChatMessageEntry {
+        role: "user".into(),
+        content: request.new_message.clone(),
+    });
+    let req = CreateChatCompletionRequest {
+        model: settings.model,
+        messages,
     };
 
     // Send the request...
@@ -157,20 +165,37 @@ pub async fn send_chat_request(state: tauri::State<'_, Mutex<AppState>>, request
     let CompletionChoice{index: _, message, finish_reason: _} = c;
     let CompletionChoiceMessage{role, content} = message;
 
-    // Add the message to the database...
-    let id = match &state.db_conn {
+    // Add the request message to the database...
+    let id1 = match &state.db_conn {
+        Some(db_conn) => {
+            // Store the  message...
+            match _add_message(db_conn, request.chat_id, "user".into(), request.new_message.clone()) {
+                Ok(id) => id,
+                Err(e) => return Err(format!("Failed to add message to database: {}", e.to_string())),
+            }
+        },
+        None => return Err("Database connection not available".into()),
+    };
+
+    // Add the response message to the database...
+    let id2 = match &state.db_conn {
         Some(db_conn) => {
             match _add_message(db_conn, request.chat_id, role.clone(), content.clone()) {
                 Ok(id) => id,
-                Err(e) => return Err(e.to_string()),
+                Err(e) => return Err(format!("Failed to add message to database: {}", e.to_string())),
             }
         },
-        None => return Err("Database connection not found".into()),
+        None => return Err("Database connection not available".into()),
     };
 
-    let mut messages = request.messages.clone();
+    let mut messages = request.previous_messages.clone();
     messages.push(ChatMessage {
-        id,
+        id: id1,
+        role: "user".into(),
+        content: request.new_message,
+    });
+    messages.push(ChatMessage {
+        id: id2,
         role,
         content,
     });

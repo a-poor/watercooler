@@ -5,6 +5,7 @@ specifiers:
   '@mantine/core': ^6.0.0
   '@mantine/form': ^6.0.0
   '@mantine/hooks': ^6.0.0
+  '@mantine/modals': ^6.0.1
   '@tabler/icons-react': ^2.7.0
   '@tauri-apps/api': ^1.2.0
   '@tauri-apps/cli': ^1.2.2
@@ -24,6 +25,7 @@ dependencies:
   '@mantine/core': 6.0.0_2anhyhi6fovdpc2mtkpggnnsdu
   '@mantine/form': 6.0.0_react@18.2.0
   '@mantine/hooks': 6.0.0_react@18.2.0
+  '@mantine/modals': 6.0.1_uziugpv5zwkk3pqsn64qbjkxrm
   '@tabler/icons-react': 2.7.0_react@18.2.0
   '@tauri-apps/api': 1.2.0
   react: 18.2.0
@@ -671,6 +673,21 @@ packages:
       react: 18.2.0
     dev: false
 
+  /@mantine/modals/6.0.1_uziugpv5zwkk3pqsn64qbjkxrm:
+    resolution: {integrity: sha512-uMtGDI3sPygQV5VOLIuNa8Y7gmylZN82BAWy8KoCduVn5Fbby/t6ILz7OVJEp8Ob+IL9CZZYvQRtnHQ0zLjq8g==}
+    peerDependencies:
+      '@mantine/core': 6.0.1
+      '@mantine/hooks': 6.0.1
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      '@mantine/core': 6.0.0_2anhyhi6fovdpc2mtkpggnnsdu
+      '@mantine/hooks': 6.0.0_react@18.2.0
+      '@mantine/utils': 6.0.1_react@18.2.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
   /@mantine/styles/6.0.0_keyspdss4kub3atek752gc6fle:
     resolution: {integrity: sha512-TyqFvdKIhbhnGYBDEJ9QIPit4NzyzQ3ivDfdzeqzd/cJBxFPhxB0sEFU8RppXpXBUlbhLFhulYFEVl2pP6zaeg==}
     peerDependencies:
@@ -687,6 +704,14 @@ packages:
 
   /@mantine/utils/6.0.0_react@18.2.0:
     resolution: {integrity: sha512-1AalSgzINKP4uv1DBTkJe/jh6yGwC2xaCQE4Atlr2bSHiLezYFMy/deGQ8XLFFv2AL0sjvewLW4ernlFujGMZg==}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+    dev: false
+
+  /@mantine/utils/6.0.1_react@18.2.0:
+    resolution: {integrity: sha512-uEN457ELHpKXS4qNAcL5OR9dFOjeFngWRZJVAPkLafWBJuLd2qmdLvKLgUVyt+cMVFtcjnu6rGVOite1+dtaFw==}
     peerDependencies:
       react: '>=16.8.0'
     dependencies:

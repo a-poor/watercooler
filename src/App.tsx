@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MantineProvider } from '@mantine/core';
+import { ModalsProvider } from '@mantine/modals';
 
 import Shell from './components/Shell';
 import Settings from './components/Settings';
@@ -40,7 +41,7 @@ function App() {
     _setActiveChatId(cid);
 
     // If it's an actual chat ID, get and set the messages...
-    if (cid) {
+    if (cid !== undefined) {
       api
         .getMessages({chatId: cid})
         .then((chat) => {
@@ -57,7 +58,11 @@ function App() {
     if (activeChatId !== undefined && !chatMsgLoading) {
       setChatMsgLoading(true);
       api
-        .sendChatRequest({chatId: activeChatId, messages: chatMessages})
+        .sendChatRequest({
+          chatId: activeChatId, 
+          previousMessages: chatMessages,
+          newMessage: m,
+        })
         .then(res => setChatMessages(res.messages))
         .catch(err => console.error(`Failed to send message: ${err}`))
         .finally(() => setChatMsgLoading(false));
@@ -76,43 +81,68 @@ function App() {
     .catch(err => console.error(`Failed to add new chat: ${err}`));
 
   // Create callback for editing chat name...
-  const onEditChatName = (cid: number) => console.log(`Editing chat: ${cid}`);
+  const onEditChatName = ({id, newName}: {id: number, newName?: string}) => console.log(`Rename chat #${id} to "${newName}"`);
 
   // Create callback for deleting chat...
-  const onDeleteChat = (cid: number) => console.log(`Deleting chat: ${cid}`);
+  const onDeleteChat = (cid: number) => {
+    api
+      .deleteChat({id: cid})
+      .then(() => api.listChats())
+      .then((chats) => {
+        setChatItems(chats);
+        setActiveChatId(undefined);
+      })
+      .catch(err => console.error(`Failed to delete chat: ${err}`));
+  }
+
+  // Create callback for clearing chats...
+  const onClearChats = () => Promise.all(
+    chatItems.map((c) => api
+      .deleteChat({id: c.id})
+      .catch(err => console.error(`Failed to delete chat: ${err}`))
+    ))
+    .then(() => api.listChats())
+    .then((chats) => {
+      setChatItems(chats);
+      setActiveChatId(undefined);
+    })
+    .catch(err => console.error(`Failed to delete chats: ${err}`));
 
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
-      <Shell 
-        chatItems={chatItems}
-        activeChatId={activeChatId}
-        settingsIsOpen={settingsOpen}
-        onOpenSettings={() => setSettingsOpen(true)}
-        onClickChat={(cid) => {
-          setActiveChatId(cid);
-          setSettingsOpen(false);
-        }}
-        onNewChat={onNewChat}
-        onEditChatName={onEditChatName}
-        onDeleteChat={onDeleteChat}
-      >
-        {settingsOpen && (
-          <Settings 
-            initialData={appSettings}
-            setConfigData={(data) => setAppSettings(data)}
-          />
-        )}
-        {!settingsOpen && !activeChatId && (
-          <NewChat onNewChat={onNewChat}/>
-        )}
-        {!settingsOpen && activeChatId && (
-          <Chat 
-            messages={chatMessages}
-            onMessage={sendMessage}
-            chatLoading={chatMsgLoading}
-          />
-        )}
-      </Shell>
+      <ModalsProvider>
+        <Shell 
+          chatItems={chatItems}
+          activeChatId={activeChatId}
+          settingsIsOpen={settingsOpen}
+          onOpenSettings={() => setSettingsOpen(true)}
+          onClickChat={(cid) => {
+            setActiveChatId(cid);
+            setSettingsOpen(false);
+          }}
+          onNewChat={onNewChat}
+          onEditChatName={onEditChatName}
+          onDeleteChat={onDeleteChat}
+          onClearChats={onClearChats}
+        >
+          {settingsOpen && (
+            <Settings 
+              initialData={appSettings}
+              setConfigData={(data) => setAppSettings(data)}
+            />
+          )}
+          {!settingsOpen && !activeChatId && (
+            <NewChat onNewChat={onNewChat}/>
+          )}
+          {!settingsOpen && activeChatId && (
+            <Chat 
+              messages={chatMessages}
+              onMessage={sendMessage}
+              chatLoading={chatMsgLoading}
+            />
+          )}
+        </Shell>
+      </ModalsProvider>
     </MantineProvider>
   );
 }

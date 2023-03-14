@@ -12,7 +12,10 @@ function MessagePrompt({ onMessage, loading }: IMessagePromptProps) {
   return (
     <>
       <Box mr={10} mb={15} mt={10} sx={{ display: "flex" }}>
-        <Textarea 
+        <Textarea
+          autosize
+          minRows={1}
+          maxRows={5}
           sx={{flexGrow: 1}} 
           value={message} 
           onChange={(event) => setMessage(event.currentTarget.value)} 

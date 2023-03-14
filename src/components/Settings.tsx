@@ -1,10 +1,4 @@
 
-const defaultConfigData: IConfigData = {
-  apiBaseUrl: "",
-  model: "",
-  apiToken: "",
-  systemPrompt: "",
-};
 
 export interface IConfigData {
   apiBaseUrl: string;
