@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "watercooler",
-    "version": "0.0.0-alpha2"
+    "version": "0.1.0"
   },
   "tauri": {
     "allowlist": {
