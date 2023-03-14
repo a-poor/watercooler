@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Textarea, ActionIcon } from '@mantine/core';
+import { Box, Textarea, ActionIcon, Tooltip } from '@mantine/core';
 import { IconSend } from '@tabler/icons-react';
 
 export interface IMessagePromptProps {
@@ -8,7 +8,12 @@ export interface IMessagePromptProps {
 }
 
 function MessagePrompt({ onMessage, loading }: IMessagePromptProps) {
+  // Setup hooks for message state and sending messages...
   const [message, setMessage] = useState<string>("");
+  const sendMessage = () => {
+    message !== "" && onMessage?.(message);
+    setMessage("");
+  };
   return (
     <>
       <Box mr={10} mb={15} mt={10} sx={{ display: "flex" }}>
@@ -16,8 +21,14 @@ function MessagePrompt({ onMessage, loading }: IMessagePromptProps) {
           autosize
           minRows={1}
           maxRows={5}
-          sx={{flexGrow: 1}} 
+          sx={{flexGrow: 1}}
           value={message} 
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && event.metaKey) {
+              event.preventDefault();
+              sendMessage();
+            }
+          }}
           onChange={(event) => setMessage(event.currentTarget.value)} 
         />
         <ActionIcon
@@ -26,9 +37,11 @@ function MessagePrompt({ onMessage, loading }: IMessagePromptProps) {
           ml={5}
           sx={{height: "100%", minWidth: "50px"}} 
           loading={loading} 
-          onClick={() => message !== "" && onMessage?.(message)}
+          onClick={sendMessage}
         >
-          <IconSend size={20} />
+          <Tooltip label="Send Message">
+            <IconSend size={20} />
+          </Tooltip>
         </ActionIcon>
       </Box>
     </>

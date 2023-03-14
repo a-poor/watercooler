@@ -24,8 +24,17 @@ function Settings({initialData, setConfigData}: ISettingsProps) {
     },
   });
   return (
-    <ScrollArea>
-      <Box mx="auto" mt={20} sx={{maxWidth: "420px"}}>
+    <ScrollArea h="100%">
+      <div
+        style={{
+          marginLeft: "auto",
+          marginRight: "auto",
+          marginTop: "20px",
+          marginBottom: "20px",
+          maxWidth: "420px", 
+          minHeight: "450px",
+        }}
+      >
         <Title order={2}>Settings</Title>
         <form onSubmit={form.onSubmit((values) => setConfigData(values))}>
           <TextInput 
@@ -74,7 +83,7 @@ function Settings({initialData, setConfigData}: ISettingsProps) {
             </Button>
           </Group>
         </form>
-      </Box>
+      </div>
     </ScrollArea>
   );
 }
