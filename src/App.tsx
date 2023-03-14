@@ -6,7 +6,7 @@ import Shell from './components/Shell';
 import Settings from './components/Settings';
 import NewChat from './components/NewChat';
 import Chat from './components/Chat';
-import { Role, IMessageData } from "./components/Message";
+import { IMessageData } from "./components/Message";
 
 import * as api from './api';
 
@@ -44,10 +44,7 @@ function App() {
     if (cid !== undefined) {
       api
         .getMessages({chatId: cid})
-        .then((chat) => {
-          console.log(`Got chat: ${chat}`);
-          setChatMessages(chat);
-        })
+        .then((chat) => setChatMessages(chat))
         .catch(err => console.error(`Failed to get chat: ${err}`));
     }
   };
@@ -81,7 +78,11 @@ function App() {
     .catch(err => console.error(`Failed to add new chat: ${err}`));
 
   // Create callback for editing chat name...
-  const onEditChatName = ({id, newName}: {id: number, newName?: string}) => console.log(`Rename chat #${id} to "${newName}"`);
+  const onEditChatName = ({id, newName}: {id: number, newName?: string}) => api
+    .renameChat({id, name: newName})
+    .then(() => api.listChats())
+    .then((chats) => setChatItems(chats))
+    .catch(err => console.error(`Failed to rename chat: ${err}`));
 
   // Create callback for deleting chat...
   const onDeleteChat = (cid: number) => {

@@ -94,6 +94,7 @@ fn main() {
             api::send_chat_request,
             storage::list_chats,
             storage::add_chat,
+            storage::rename_chat,
             storage::delete_chat,
             storage::get_messages,
             storage::add_message,

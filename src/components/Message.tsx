@@ -17,9 +17,21 @@ export interface IMessageProps {
 }
 
 function Message({ message }: IMessageProps) {
+  const badgeColor = (() => {
+    switch (message.role) {
+      case Role.System:
+        return "green";
+      case Role.User:
+        return "blue";
+      case Role.Assistant:
+        return "violet";
+      default:
+        throw new Error(`Unknown role: ${message.role}`);
+    }
+  })();
   return (
     <Box my={10}>
-      <Badge>
+      <Badge color={badgeColor}>
         { message.role }
       </Badge>
       <Text sx={{ marginLeft: 10, marginRight: 10, marginBottom: 10 }}>

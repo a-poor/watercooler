@@ -104,6 +104,10 @@ export async function addChat({ name }: { name?: string }) {
     return parsed;
 }
 
+export async function renameChat({ id, name }: { id: number, name?: string }) {
+    await invoke("rename_chat", { id, name });
+}
+
 export async function deleteChat({ id }: { id: number }) {
     await invoke("delete_chat", { id });
 }

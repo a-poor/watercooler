@@ -54,6 +54,7 @@ export function Nav({settingsIsOpen, activeChatId, chatItems, onClickChat, onNew
             {editingChatId === c.id && (
               <Box ref={ref} sx={{display: "flex", alignItems: "center"}}>
                 <TextInput
+                  placeholder="Chat name"
                   value={newChatName}
                   onChange={(e) => setNewChatName(e.currentTarget.value)}
                   px={5} 
@@ -61,7 +62,9 @@ export function Nav({settingsIsOpen, activeChatId, chatItems, onClickChat, onNew
                   style={{ display: "inline-block", flexGrow: 1 }}
                 />
                 <Tooltip label="Confirm new name (or click away)">
-                  <ActionIcon 
+                  <ActionIcon
+                    color="blue" 
+                    variant="light"
                     sx={{height: "100%"}}
                     onClick={() => {
                       let newName: string | undefined = newChatName?.trim();

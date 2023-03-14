@@ -99,6 +99,33 @@ pub fn add_chat(state: tauri::State<'_, AppState>, name: Option<String>) -> Resu
 }
 
 // TODO - Add function to rename chat...
+#[tauri::command]
+pub fn rename_chat(state: tauri::State<'_, AppState>, id: i64, name: Option<String>) -> Result<(), String> {
+    // Get the database connection...
+    let conn = match &state.db_conn {
+        Some(c) => c,
+        None => return Err("Failed to get database connection".into()),
+    };
+
+    // Delete the messages...
+    let conn = match conn.lock() {
+        Ok(c) => c,
+        Err(e) => return Err(e.to_string()),
+    };
+    
+    // Delete the chat...
+    let mut stmt = match conn.prepare("UPDATE chats SET name = ? WHERE id = ?;") {
+        Ok(s) => s,
+        Err(e) => return Err(e.to_string()),
+    };
+    match stmt.execute((name, id)) {
+        Ok(_) => (),
+        Err(e) => return Err(e.to_string()),
+    };
+
+    // Return success...
+    Ok(())
+}
 
 #[tauri::command]
 pub fn delete_chat(state: tauri::State<'_, AppState>, id: i64) -> Result<(), String> {
