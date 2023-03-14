@@ -16,24 +16,20 @@ fn main() {
     let ctx = tauri::generate_context!();
 
     // Get the config dir and the data dir...
-    // let config_file_path = match app_config_dir(ctx.config()) {
-    //     Some(mut p) => {
-    //         p.push("watercooler-config.json");
-    //         Some(p.to_string_lossy().to_string())
-    //     },
-    //     None => None,
-    // };
-    // let data_db_path = match app_data_dir(ctx.config()) {
-    //     Some(mut p) => {
-    //         p.push("watercooler-data.db");
-    //         Some(p.to_string_lossy().to_string())
-    //     },
-    //     None => None,
-    // };
-
-    // TODO - Replace this with the above...
-    let config_file_path = Some("/Users/austinpoor/Downloads/watercooler-config.json".into());
-    let data_db_path = Some("/Users/austinpoor/Downloads/watercooler-data.db".into());
+    let config_file_path = match app_config_dir(ctx.config()) {
+        Some(mut p) => {
+            p.push("watercooler-config.json");
+            Some(p.to_string_lossy().to_string())
+        },
+        None => None,
+    };
+    let data_db_path = match app_data_dir(ctx.config()) {
+        Some(mut p) => {
+            p.push("watercooler-data.db");
+            Some(p.to_string_lossy().to_string())
+        },
+        None => None,
+    };
 
     // Get the database connection...
     let db_conn = match data_db_path {
