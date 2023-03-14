@@ -31,14 +31,14 @@ function Settings({initialData, setConfigData}: ISettingsProps) {
           <TextInput 
             label="API Base URL"
             description='OpenAI API base URL. The endpoint "/v1/chat/completions" will be used.'
-            placeholder="https://..."
+            placeholder="https://api.openai.com"
             {...form.getInputProps('apiBaseUrl')}
             mb="sm"
           />
           <TextInput 
             label="Model"
             description='The model to use for chat completion (e.g. "gpt-3.5-turbo", "gpt-3.5-turbo-0301").'
-            placeholder="https://..."
+            placeholder="gpt-3.5-turbo"
             {...form.getInputProps('model')}
             mb="sm"
           />
@@ -50,7 +50,7 @@ function Settings({initialData, setConfigData}: ISettingsProps) {
                 Read more <a href="https://platform.openai.com/docs/api-reference/authentication">here</a>
               </span>
             )}
-            placeholder="https://..."
+            placeholder="Token"
             {...form.getInputProps('apiToken')}
             mb="sm"
           />
@@ -61,7 +61,7 @@ function Settings({initialData, setConfigData}: ISettingsProps) {
                 The seed prompt for the chat. Read more <a href="https://platform.openai.com/docs/guides/chat/introduction">here</a>
               </span>
             )}
-            placeholder="https://..."
+            placeholder="Chat model system prompt"
             {...form.getInputProps('systemPrompt')}
             mb="sm"
           />
