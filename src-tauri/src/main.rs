@@ -3,6 +3,7 @@
 
 #![allow(unused_imports)]
 
+use std::fs::create_dir_all;
 use std::sync::Mutex;
 use rusqlite::Connection;
 use tauri::api::path::{app_config_dir, app_data_dir};
@@ -18,6 +19,10 @@ fn main() {
     // Get the config dir and the data dir...
     let config_file_path = match app_config_dir(ctx.config()) {
         Some(mut p) => {
+            // Create the directory if it doesn't exist...
+            create_dir_all(&p).expect("Failed to create config dir");
+
+            // Add the filename and return...
             p.push("watercooler-config.json");
             Some(p.to_string_lossy().to_string())
         },
@@ -25,6 +30,10 @@ fn main() {
     };
     let data_db_path = match app_data_dir(ctx.config()) {
         Some(mut p) => {
+            // Create the directory if it doesn't exist...
+            create_dir_all(&p).expect("Failed to create config dir");
+
+            // Add the filename and return...
             p.push("watercooler-data.db");
             Some(p.to_string_lossy().to_string())
         },
