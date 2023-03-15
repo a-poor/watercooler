@@ -30,7 +30,7 @@ impl Default for Settings {
         Self {
             api_base_url: "https://api.openai.com".into(),
             model: "gpt-3.5-turbo".into(),
-            api_token: "secret".into(),
+            api_token: "".into(),
             system_prompt: "You are a helpful assistant.".into(),
         }
     }
