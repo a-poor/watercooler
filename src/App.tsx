@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { MantineProvider } from '@mantine/core';
+import { MantineProvider, Anchor } from '@mantine/core';
 import { ModalsProvider } from '@mantine/modals';
+import { Notifications, notifications } from '@mantine/notifications';
 
 import Shell from './components/Shell';
 import Settings from './components/Settings';
@@ -17,11 +18,42 @@ function App() {
 
   // Get and configure the app settings...
   const [appSettings, setAppSettings] = useState<undefined | api.SettingsType>(undefined);
+  const updateSettings = (settings: api.SettingsType) => {
+    api
+      .setSettings(settings)
+      .then(() => api.getSettings())
+      .then((s) => setAppSettings(s))
+      .then(() => {
+        notifications.show({
+            id: "success-saving-settings",
+            title: `Settings Updated`,
+            message: "Successfully updated app settings.",
+            autoClose: 2000,
+          });
+      })
+      .catch(err => {
+        console.error(`Failed to set settings: ${err}`);
+        notifications.show({
+          id: "err-saving-settings",
+          title: "Failed to Save Settings",
+          message: `Got error: ${err}`,
+          color: "red",
+        });
+      });
+  };
   useEffect(() => {
     api
       .getSettingsOrSetDefault()
       .then((settings) => setAppSettings(settings))
-      .catch(err => console.error(`Failed to get settings: ${err}`));
+      .catch(err => {
+        console.error(`Failed to get settings: ${err}`);
+        notifications.show({
+          id: "err-loading-settings",
+          title: "Failed to Load Settings",
+          message: `Got error: ${err}`,
+          color: "red",
+        });
+      });
   }, []);
 
   // Get and configure the chat lists...
@@ -30,7 +62,15 @@ function App() {
     api
       .listChats()
       .then((chats) => setChatItems(chats))
-      .catch(err => console.error(`Failed to get chat list: ${err}`));
+      .catch(err => {
+        console.error(`Failed to get chat list: ${err}`);
+        notifications.show({
+          id: "err-load-chats-initial",
+          title: "Failed to Load Chat List",
+          message: `Got error: ${err}`,
+          color: "red",
+        });
+      });
   }, []);
 
   // Create hook to set active chat...
@@ -45,13 +85,40 @@ function App() {
       api
         .getMessages({chatId: cid})
         .then((chat) => setChatMessages(chat))
-        .catch(err => console.error(`Failed to get chat: ${err}`));
+        .catch(err => {
+          console.error(`Failed to get chat: ${err}`);
+          notifications.show({
+            id: "err-get-chat-messages",
+            title: `Failed to Get Chat`,
+            message: `Failed to get chat with id=${cid}. Got error: ${err}`,
+            color: "red",
+          });
+        });
     }
   };
 
   // Configure hook to send messages...
   const [chatMsgLoading, setChatMsgLoading] = useState(false);
   const sendMessage = (m: string) => {
+    // Check if an API token exists...
+    if (appSettings?.apiToken === undefined || appSettings?.apiToken === "") {
+      notifications.show({
+        id: "err-sending-message-no-token",
+        title: `API Token Not Set`,
+        message: (
+          <>
+            Make sure to set an API token in the <Anchor component='button' onClick={() => {
+              setSettingsOpen(true);
+              notifications.hide('err-sending-message-no-token');
+            }}>Settings</Anchor>.
+          </>
+        ),
+        color: "red",
+      });
+      return;
+    }
+
+    // Send the message...
     if (activeChatId !== undefined && !chatMsgLoading) {
       setChatMsgLoading(true);
       api
@@ -61,7 +128,15 @@ function App() {
           newMessage: m,
         })
         .then(res => setChatMessages(res.messages))
-        .catch(err => console.error(`Failed to send message: ${err}`))
+        .catch(err => {
+          console.error(`Failed to send message: ${err}`);
+          notifications.show({
+            id: "err-sending-message",
+            title: `Failed to Send API Request`,
+            message: `Got error: ${err}`,
+            color: "red",
+          });
+        })
         .finally(() => setChatMsgLoading(false));
     }
   }
@@ -75,14 +150,30 @@ function App() {
     })
     .then(() => api.listChats())
     .then((chats) => setChatItems(chats))
-    .catch(err => console.error(`Failed to add new chat: ${err}`));
+    .catch(err => {
+      console.error(`Failed to add new chat: ${err}`);
+      notifications.show({
+        id: "err-create-chat",
+        title: "Failed to Create Chat",
+        message: `Got error: ${err}`,
+        color: "red",
+      });
+    });
 
   // Create callback for editing chat name...
   const onEditChatName = ({id, newName}: {id: number, newName?: string}) => api
     .renameChat({id, name: newName})
     .then(() => api.listChats())
     .then((chats) => setChatItems(chats))
-    .catch(err => console.error(`Failed to rename chat: ${err}`));
+    .catch(err => {
+      console.error(`Failed to rename chat: ${err}`);
+      notifications.show({
+        id: "err-rename-chat",
+        title: "Failed to Rename Chat",
+        message: `Got error: ${err}`,
+        color: "red",
+      });
+    });
 
   // Create callback for deleting chat...
   const onDeleteChat = (cid: number) => {
@@ -93,7 +184,15 @@ function App() {
         setChatItems(chats);
         setActiveChatId(undefined);
       })
-      .catch(err => console.error(`Failed to delete chat: ${err}`));
+      .catch(err => {
+        console.error(`Failed to delete chat: ${err}`);
+        notifications.show({
+          id: "err-delete-chat",
+          title: "Failed to Delete Chat",
+          message: `Failed to delete chat id=${cid}. Got error: ${err}`,
+          color: "red",
+        });
+      });
   }
 
   // Create callback for clearing chats...
@@ -107,11 +206,20 @@ function App() {
       setChatItems(chats);
       setActiveChatId(undefined);
     })
-    .catch(err => console.error(`Failed to delete chats: ${err}`));
+    .catch(err => {
+      console.error(`Failed to delete chats: ${err}`);
+      notifications.show({
+        id: "err-clear-all-chats",
+        title: "Failed to Clear All Chats",
+        message: `Got error: ${err}`,
+        color: "red",
+      });
+    });
 
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
       <ModalsProvider>
+        <Notifications />
         <Shell 
           chatItems={chatItems}
           activeChatId={activeChatId}
@@ -129,11 +237,13 @@ function App() {
           {settingsOpen && (
             <Settings 
               initialData={appSettings}
-              setConfigData={(data) => setAppSettings(data)}
+              setConfigData={(data) => updateSettings(data)}
             />
           )}
           {!settingsOpen && !activeChatId && (
-            <NewChat onNewChat={onNewChat}/>
+            <NewChat
+              onNewChat={onNewChat}
+            />
           )}
           {!settingsOpen && activeChatId && (
             <Chat 
