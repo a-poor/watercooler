@@ -1,6 +1,6 @@
 # WaterCooler
 
-![A screenshot of the WaterCooler app](./etc/screenshot.png)
+![A screenshot of the WaterCooler app](./etc/screenshot-basic.png)
 
 [![publish](https://github.com/a-poor/watercooler/actions/workflows/publish.yml/badge.svg)](https://github.com/a-poor/watercooler/actions/workflows/publish.yml)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/a-poor/watercooler)
@@ -25,7 +25,25 @@ You can read more about building the app in the Tauri docs, [here](https://tauri
 
 ## Getting Started
 
-After installing, start by going to the `Settings` tab and putting in your OpenAI auth token.
+![Screenshot of going to settings tab](./etc/screenshot-go-to-settings.png)
+
+After installing, start by going to the `Settings` tab in the left nav panel and...
+
+![Screenshot of adding OpenAI API token](./etc/screenshot-api-token.png)
+
+...putting in your OpenAI auth token. (You can find more info on getting an OpenAI auth token [here](https://platform.openai.com/docs/api-reference/authentication)).
+
+![Screenshot of starting a new chat](./etc/screenshot-start-new-chat.png)
+
+Then, you can start a new chat by clicking the "+ New Chat" button in the left nav panel.
+
+![Screenshot of the new chat](./etc/screenshot-start-chatting.png)
+
+WaterCooler will automatically seed the chat with your configured system prompt (can also be set in the `Settings` tab).
+
+You can learn more about the system prompt [here](https://platform.openai.com/docs/guides/chat/introduction).
+
+Now you're ready to start chatting!
 
 
 ## Misc.
