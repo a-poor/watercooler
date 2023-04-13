@@ -20,7 +20,9 @@ jobs:
         with:
           node-version: 16
       - name: Install
-        run: npm install -g pnpm
+        run: |
+         npm install -g pnpm
+         pnpm --version
       - name: Install Rust Stable
         uses: dtolnay/rust-toolchain@stable
       - name: Install Dependencies (ubuntu only)
@@ -29,7 +31,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
       - name: install frontend dependencies
-        run: pnpm i
+        run: pnpm i --no-frozen-lockfile
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
