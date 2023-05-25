@@ -1,4 +1,5 @@
 import { Box, Text, Badge, Divider } from '@mantine/core';
+import ReactMarkdown from 'react-markdown'
 
 export enum Role {
   System = "system",
@@ -34,9 +35,11 @@ function Message({ message }: IMessageProps) {
       <Badge color={badgeColor}>
         { message.role }
       </Badge>
-      <Text sx={{ marginLeft: 10, marginRight: 10, marginBottom: 10 }}>
-        { message.content }
-      </Text>
+      <Box sx={{ marginLeft: 10, marginRight: 10, marginBottom: 10 }}>
+        <ReactMarkdown>
+          { message.content }
+        </ReactMarkdown>
+      </Box>
     </Box>
   );
 }
