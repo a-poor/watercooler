@@ -1,6 +1,6 @@
 [package]
 name = "watercooler"
-version = "0.2.0"
+version = "0.3.1"
 description = "WaterCooler is an open source, desktop GUI for interacting with ChatGPT, created with Tauri."
 authors = ["Austin Poor <apoor@austinpoor.com>"]
 license = "MIT"
@@ -20,6 +20,8 @@ anyhow = "1.0.69"
 reqwest = { version = "0.11.14", features = ["json"] }
 url = "2.3.1"
 rusqlite = { version = "0.28.0", features = ["bundled"] }
+diesel = { version = "2.1.0", features = ["sqlite"] }
+diesel_migrations = "2.1.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

@@ -1,7 +1,13 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-#![allow(unused_imports)]
+
+#[macro_use]
+extern crate diesel;
+#[macro_use]
+extern crate diesel_migrations;
+
+// use diesel::sqlite::SqliteConnection;
 
 use std::fs::create_dir_all;
 use std::sync::Mutex;
@@ -10,6 +16,9 @@ use tauri::api::path::{app_config_dir, app_data_dir};
 mod settings;
 mod api;
 mod storage;
+
+
+embed_migrations!("./migrations");
 
 
 fn main() {
