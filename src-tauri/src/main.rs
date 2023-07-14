@@ -12,6 +12,11 @@ mod api;
 mod storage;
 
 
+const CONFIG_FILE: &str = "watercooler-config.json";
+const DATABASE_FILE: &str = "watercooler-data-v2.db";
+const OLD_DATABASE_FILE: &str = "watercooler-data.db";
+
+
 fn main() {
     // Get the context...
     let ctx = tauri::generate_context!();
@@ -23,7 +28,7 @@ fn main() {
             create_dir_all(&p).expect("Failed to create config dir");
 
             // Add the filename and return...
-            p.push("watercooler-config.json");
+            p.push(CONFIG_FILE);
             Some(p.to_string_lossy().to_string())
         },
         None => None,
@@ -34,7 +39,7 @@ fn main() {
             create_dir_all(&p).expect("Failed to create config dir");
 
             // Add the filename and return...
-            p.push("watercooler-data.db");
+            p.push(DATABASE_FILE);
             Some(p.to_string_lossy().to_string())
         },
         None => None,
