@@ -1,14 +1,23 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import * as RadixToggle from '@radix-ui/react-toggle';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { ChatBubbleIcon, Component1Icon, CodeIcon, MixerVerticalIcon } from '@radix-ui/react-icons';
 
 
 export interface IToggleProps {
-  children: React.ReactNode;
+  /** Child components (e.g. an icon) */
+  children: ReactNode;
+
+  /** Is the toggle active? */
   active: boolean; 
+
+  /** Action to run when toggled. */
   onToggle: (v: boolean) => void;
+
+  /** Aria label for the toggle. */
   ariaLabel?: string;
+
+  /** Tooltip text. */
   tooltip?: string;
 }
 
@@ -72,13 +81,20 @@ export function Toggle({ children, active, onToggle, ariaLabel, tooltip }: ITogg
   );
 }
 
+/** IDs of the nav bar tabs. */
 export type NavBarTabs = 'chat' | 'templates' | 'code' | 'settings';
 
 export interface INavBarProps {
-  activeTab: NavBarTabs; 
+  /** Which tab is active? */
+  activeTab: NavBarTabs;
+
+  /** Set the active tab by ID. */
   setActiveTab: (value: NavBarTabs) => void;
 }
 
+/**
+ * The nav-bar for the left-hand side of the app.
+ */
 function NavBar({activeTab, setActiveTab}: INavBarProps) {
   return (
     <div className="flex flex-col mb-2">

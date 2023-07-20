@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import * as Tooltip from '@radix-ui/react-tooltip';
 
 import NavBar, { NavBarTabs } from '@/components/NavBar';
