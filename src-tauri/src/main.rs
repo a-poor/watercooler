@@ -7,9 +7,12 @@ use std::fs::create_dir_all;
 use std::sync::Mutex;
 use rusqlite::Connection;
 use tauri::api::path::{app_config_dir, app_data_dir};
+
 mod settings;
 mod api;
 mod storage;
+mod migrations;
+
 
 
 const CONFIG_FILE: &str = "watercooler-config.json";
