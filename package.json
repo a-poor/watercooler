@@ -10,6 +10,10 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@radix-ui/colors": "^1.0.1",
+    "@radix-ui/react-icons": "^1.3.0",
+    "@radix-ui/react-toggle": "^1.0.3",
+    "@radix-ui/react-tooltip": "^1.0.6",
     "@tauri-apps/api": "^1.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
