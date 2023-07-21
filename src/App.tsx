@@ -2,6 +2,10 @@ import { useState } from 'react';
 import * as Tooltip from '@radix-ui/react-tooltip';
 
 import NavBar, { NavBarTabs } from '@/components/NavBar';
+import ChatTab from '@/components/ChatTab';
+import TemplateTab from '@/components/TemplateTab';
+import CodeTab from '@/components/CodeTab';
+import AppSettings from '@/components/AppSettings';
 
 
 function App() {
@@ -14,9 +18,18 @@ function App() {
           setActiveTab={setActiveTab} 
         />
         <main className="flex-grow">
-          <h1 className="underline">
-            Hello, World!
-          </h1>
+          {activeTab === 'chat' && (
+            <ChatTab />
+          )}
+          {activeTab === 'templates' && (
+            <TemplateTab />
+          )}
+          {activeTab === 'code' && (
+            <CodeTab />
+          )}
+          {activeTab === 'settings' && (
+            <AppSettings />
+          )}
         </main>
       </div>
     </Tooltip.Provider>
