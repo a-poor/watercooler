@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import * as Switch from '@radix-ui/react-switch';
 import * as Label from '@radix-ui/react-label';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { PlusIcon, DotsHorizontalIcon } from '@radix-ui/react-icons';
+import {
+  HamburgerMenuIcon,
+  DotFilledIcon,
+  CheckIcon,
+  ChevronRightIcon,
+} from '@radix-ui/react-icons';
 
-import type { IChat } from '@/api';
+import type { IChatSummary } from '@/api';
 
 
-const dummyChats: IChat[] = [
+const dummyChats: IChatSummary[] = [
   {
     id: "01",
     name: "Rust vs Go vs JavaScript",
@@ -38,23 +45,165 @@ const dummyChats: IChat[] = [
 ];
 
 
+export interface IChatItemMenuProps {
+  /** Action to perform when the user clicks "Rename" */
+  onRename?: () => void;
+  /** Is the message archived? */
+  archived: boolean;
+  /** Action to perform to archive the chat. */
+  onArchive?: () => void;
+  /** Action to perform to unarchive the chat. */
+  onUnarchive?: () => void;
+  /** Action to perform to delete the chat, perminently. */
+  onDelete?: () => void;
+  /** Action to perform to duplicate the chat. */
+  onDuplicate?: () => void;
+  /** Action to perform to export the chat. */
+  onExport?: () => void;
+  /** Action to perform to create a template from the chat. */
+  onCreateTemplate?: () => void;
+}
+
+function ChatItemMenu({archived, onArchive, onUnarchive, onRename, onDelete, onDuplicate, onExport, onCreateTemplate}: IChatItemMenuProps) {
+  const menuItems: {text: string, action: () => void}[] = [
+    {
+      text: "Rename Chat",
+      action: () => onRename?.(),
+    },
+    {
+      text: "Duplicate Chat",
+      action: () => onDuplicate?.(),
+    },
+    {
+      text: "Template from Chat",
+      action: () => onCreateTemplate?.(),
+    },
+    {
+      text: archived ? "Unarchive Chat" : "Archive Chat",
+      action: () => { if (archived) { onUnarchive?.() } else { onArchive?.() }},
+    },
+    {
+      text: "Export Chat",
+      action: () => onExport?.(),
+    },
+    {
+      text: "Delete Permamently",
+      action: () => onDelete?.(),
+    },
+  ];
+  return (
+    <>
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger asChild>
+          <button className="hover:bg-slate-200 px-1 py-1 rounded-md">
+            <DotsHorizontalIcon className="w-5 h-5"/>
+          </button>
+        </DropdownMenu.Trigger>
+
+        <DropdownMenu.Portal>
+          <DropdownMenu.Content
+            className="
+              min-w-[175px]
+              bg-white 
+              rounded-md 
+              p-[5px] 
+              shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),_0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)] 
+              will-change-[opacity,transform] 
+              data-[side=top]:animate-slideDownAndFade 
+              data-[side=right]:animate-slideLeftAndFade 
+              data-[side=bottom]:animate-slideUpAndFade 
+              data-[side=left]:animate-slideRightAndFade
+            "
+            sideOffset={5}
+          >
+            {menuItems.map((d, i) => (
+              <DropdownMenu.Item
+                key={i}
+                className="
+                  text-[13px]
+                  leading-none
+                  text-violet11
+                  rounded-[3px]
+                  flex
+                  items-center
+                  h-[25px]
+                  px-[5px]
+                  relative
+                  pl-3
+                  select-none
+                  outline-none
+                  data-[highlighted]:bg-violet9 
+                  data-[highlighted]:text-violet1
+                "
+                onSelect={d.action}
+              >
+                { d.text }
+              </DropdownMenu.Item>
+            ))}
+            <DropdownMenu.Arrow className="fill-white" />
+          </DropdownMenu.Content>
+        </DropdownMenu.Portal>
+      </DropdownMenu.Root>
+    </>
+  );
+}
+
+
+interface IChatItemProps {
+  /** The name of the chat thread. */
+  name: string;
+  /** Action to perform when the user clicks "Rename" */
+  onRename?: () => void;
+  /** Is the message archived? */
+  archived: boolean;
+  /** Action to perform to archive the chat. */
+  onArchive?: () => void;
+  /** Action to perform to unarchive the chat. */
+  onUnarchive?: () => void;
+  /** Action to perform to delete the chat, perminently. */
+  onDelete?: () => void;
+  /** Action to perform to duplicate the chat. */
+  onDuplicate?: () => void;
+  /** Action to perform to export the chat. */
+  onExport?: () => void;
+  /** Action to perform to create a template from the chat. */
+  onCreateTemplate?: () => void;
+}
+
+function ChatItem({name, archived, ...actions}: IChatItemProps) {
+  return (
+    <>
+      <button className="flex-grow text-left">
+        <span className={archived ? "line-through text-slate-500" : ""}>
+          { name }
+        </span>
+      </button>
+      <ChatItemMenu 
+        archived={archived}
+        {...actions}
+      />
+    </>
+  );
+}
+
+
 /**
  * A component that displays a list of chats, archived chats,
  * and a button to create a new chat.
  */
 function ChatList() {
   const [showArchived, setShowArchived] = useState<boolean>(false);
-  const [chats, setChats] = useState<IChat[]>(dummyChats);
+  const [chats, _setChats] = useState<IChatSummary[]>(dummyChats);
   return (
     <div className="h-screen overflow-hidden">
       <div className="max-w-3xl mx-auto px-4 py-4">
-        <h1 className="font-semibold text-3xl mb-4">
+        <h1 className="font-semibold text-3xl mb-6">
           Your Chats
         </h1>
         
         {/* Button to create a new chat or show archived chats. */}
         <div className="flex flex-row items-center mb-6">
-          <div className="">
+          <div>
             <button 
               className="
                 text-violet11
@@ -127,24 +276,22 @@ function ChatList() {
 
         {/* List of chats. */}
         <div className="scroll-y-auto">
-          <ul className="flex flex-col space-y-2">
+          <ul className="flex flex-col space-y-2 -mx-1">
             {chats
               .filter(c => showArchived || !c.archived)
               .map(c => (
                 <li key={c.id} className="flex flex-row hover:bg-slate-100 rounded-lg px-3 py-2">
-                  <button className="flex-grow text-left">
-                    {!c.archived && (
-                      <span>{ c.name }</span>
-                    )}
-                    {c.archived && (
-                      <span className="line-through text-slate-500">
-                        { c.name }
-                      </span>
-                    )}
-                  </button>
-                  <button className="hover:bg-slate-200 px-1 py-1 rounded-md">
-                    <DotsHorizontalIcon className="w-5 h-5"/>
-                  </button>
+                  <ChatItem 
+                    name={c.name}
+                    archived={c.archived}
+                    onRename={() => console.log(`Rename-ing chat ${c.id}`)}
+                    onArchive={() => console.log(`Archive-ing chat ${c.id}`)}
+                    onUnarchive={() => console.log(`Unarchive-ing chat ${c.id}`)}
+                    onDelete={() => console.log(`Delete-ing chat ${c.id}`)}
+                    onDuplicate={() => console.log(`Duplicate-ing chat ${c.id}`)}
+                    onExport={() => console.log(`Export-ing chat ${c.id}`)}
+                    onCreateTemplate={() => console.log(`CreateTemplate-ing chat ${c.id}`)}
+                  />
                 </li>
             ))}
           </ul>
