@@ -2,13 +2,7 @@ import { useState } from 'react';
 import * as Switch from '@radix-ui/react-switch';
 import * as Label from '@radix-ui/react-label';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { PlusIcon, DotsHorizontalIcon } from '@radix-ui/react-icons';
-import {
-  HamburgerMenuIcon,
-  DotFilledIcon,
-  CheckIcon,
-  ChevronRightIcon,
-} from '@radix-ui/react-icons';
+import { PlusIcon, DotsHorizontalIcon, MixIcon } from '@radix-ui/react-icons';
 
 import type { IChatSummary } from '@/api';
 
@@ -75,12 +69,18 @@ function ChatItemMenu({archived, onArchive, onUnarchive, onRename, onDelete, onD
       action: () => onDuplicate?.(),
     },
     {
-      text: "Template from Chat",
+      text: "Make Template",
       action: () => onCreateTemplate?.(),
     },
     {
       text: archived ? "Unarchive Chat" : "Archive Chat",
-      action: () => { if (archived) { onUnarchive?.() } else { onArchive?.() }},
+      action: () => { 
+        if (archived) { 
+          onUnarchive?.();
+        } else { 
+          onArchive?.();
+        }
+      },
     },
     {
       text: "Export Chat",
@@ -152,10 +152,12 @@ function ChatItemMenu({archived, onArchive, onUnarchive, onRename, onDelete, onD
 interface IChatItemProps {
   /** The name of the chat thread. */
   name: string;
-  /** Action to perform when the user clicks "Rename" */
-  onRename?: () => void;
   /** Is the message archived? */
   archived: boolean;
+  /** Action to perform to open the chat. */
+  onOpen?: () => void;
+  /** Action to perform to rename the chat */
+  onRename?: () => void;
   /** Action to perform to archive the chat. */
   onArchive?: () => void;
   /** Action to perform to unarchive the chat. */
@@ -170,28 +172,37 @@ interface IChatItemProps {
   onCreateTemplate?: () => void;
 }
 
-function ChatItem({name, archived, ...actions}: IChatItemProps) {
+function ChatItem({name, archived, onOpen, ...actions}: IChatItemProps) {
   return (
     <>
-      <button className="flex-grow text-left">
+      <button className="px-3 py-2 flex-grow text-left" onClick={onOpen}>
         <span className={archived ? "line-through text-slate-500" : ""}>
           { name }
         </span>
       </button>
-      <ChatItemMenu 
-        archived={archived}
-        {...actions}
-      />
+      <div className="mx-3 my-2">
+        <ChatItemMenu 
+          archived={archived}
+          {...actions}
+        />
+      </div>
     </>
   );
 }
 
 
+export interface IChatListProps {
+  createChat?: () => void;
+  createChatFromTemplate?: () => void;
+  openChat?: (id: string) => void;
+  openSettings?: () => void;
+}
+
 /**
  * A component that displays a list of chats, archived chats,
  * and a button to create a new chat.
  */
-function ChatList() {
+function ChatList({createChat, openChat, openSettings}: IChatListProps) {
   const [showArchived, setShowArchived] = useState<boolean>(false);
   const [chats, _setChats] = useState<IChatSummary[]>(dummyChats);
   return (
@@ -202,9 +213,10 @@ function ChatList() {
         </h1>
         
         {/* Button to create a new chat or show archived chats. */}
-        <div className="flex flex-row items-center mb-6">
+        <div className="mb-6 flex flex-row items-center space-x-2">
           <div>
-            <button 
+            <button
+              onClick={createChat}
               className="
                 text-violet11
                 hover:bg-mauve3 
@@ -224,6 +236,31 @@ function ChatList() {
               <PlusIcon className="w-4 h-4 inline-block stroke-violet11 stroke-[0.5]" />
               <span className="font-medium">
                 New Chat
+              </span>
+            </button>
+          </div>
+          <div>
+            <button
+              onClick={openSettings}
+              className="
+                text-mauve11
+                h-[35px]
+                justify-center 
+                rounded-[4px] 
+                bg-mauve6
+                hover:bg-mauve3 
+                font-medium 
+                leading-none  
+                focus:outline-none
+                px-2
+                flex
+                space-x-2
+                items-center
+              "
+            >
+              <MixIcon className="w-4 h-4 inline-block stroke-violet11 stroke-[0.5]" />
+              <span className="font-medium">
+                Chat Settings
               </span>
             </button>
           </div>
@@ -280,10 +317,11 @@ function ChatList() {
             {chats
               .filter(c => showArchived || !c.archived)
               .map(c => (
-                <li key={c.id} className="flex flex-row hover:bg-slate-100 rounded-lg px-3 py-2">
+                <li key={c.id} className="flex flex-row hover:bg-slate-100 rounded-lg">
                   <ChatItem 
                     name={c.name}
                     archived={c.archived}
+                    onOpen={() => openChat?.(c.id)}
                     onRename={() => console.log(`Rename-ing chat ${c.id}`)}
                     onArchive={() => console.log(`Archive-ing chat ${c.id}`)}
                     onUnarchive={() => console.log(`Unarchive-ing chat ${c.id}`)}

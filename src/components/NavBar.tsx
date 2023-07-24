@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import * as RadixToggle from '@radix-ui/react-toggle';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { ChatBubbleIcon, Component1Icon, CodeIcon, MixerVerticalIcon } from '@radix-ui/react-icons';
+import { ChatBubbleIcon, Component1Icon, CodeIcon, GearIcon } from '@radix-ui/react-icons';
 
 
 export interface IToggleProps {
@@ -109,16 +109,16 @@ function NavBar({activeTab, setActiveTab}: INavBarProps) {
       <Toggle 
         active={activeTab === 'templates'} 
         onToggle={() => setActiveTab('templates')}
-        ariaLabel='Open Templates'
-        tooltip='Templates'
+        ariaLabel='Open Chat Templates'
+        tooltip='Chat Templates'
       >
         <Component1Icon className="w-5 h-5" />
       </Toggle>
       <Toggle 
         active={activeTab === 'code'} 
         onToggle={() => setActiveTab('code')}
-        ariaLabel='Open Code'
-        tooltip='Code'
+        ariaLabel='Open Code Manager'
+        tooltip='Code Manager'
       >
         <CodeIcon className="w-5 h-5" />
       </Toggle>
@@ -126,10 +126,10 @@ function NavBar({activeTab, setActiveTab}: INavBarProps) {
       <Toggle 
         active={activeTab === 'settings'} 
         onToggle={() => setActiveTab('settings')}
-        ariaLabel='Open Settings'
-        tooltip='Settings'
+        ariaLabel='Open App Settings'
+        tooltip='App Settings'
       >
-        <MixerVerticalIcon className="w-5 h-5" />
+        <GearIcon className="w-5 h-5" />
       </Toggle>
     </div>
   );

@@ -13,7 +13,7 @@ export interface IChatDetails {
     createdAt: string;
     updatedAt: string;
     archived: boolean;
-    settings: IChatSettings;
+    model: string;
     messages: IMessage[];
 }
 
