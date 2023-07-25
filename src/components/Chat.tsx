@@ -21,7 +21,7 @@ const demoChat = {
   name: "Demo Chat",
   createdAt: "2023-07-01 12:00:00",
   updatedAt: "2023-07-24 08:30:00",
-  archived: false,
+  archived: true,
   model: "gpt-4",
   fromTemplate: {
     id: "001",
@@ -40,64 +40,62 @@ interface IMenuButtonProps {
 function MenuButton({children, tooltip, onClick}: IMenuButtonProps) {
   return (
     <>
-      <Tooltip.Provider>
-        <Tooltip.Root>
-          <Tooltip.Trigger asChild>
-            <button
-              onClick={onClick}
-              className="
-                flex-shrink-0 
-                flex-grow-0 
-                basis-auto 
-                text-mauve11 
-                h-[25px] 
-                px-[5px] 
-                rounded 
-                inline-flex 
-                text-[13px] 
-                leading-none 
-                items-center 
-                justify-center 
-                bg-white 
-                ml-0.5 
-                outline-none 
-                hover:bg-violet3 
-                hover:text-violet11 
-                focus:relative 
-                focus:shadow-[0_0_0_2px] 
-                focus:shadow-violet7 
-                first:ml-0
-              "
-            >
-              { children }
-            </button>
-          </Tooltip.Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Content
-              className="
-                data-[state=delayed-open]:data-[side=top]:animate-slideDownAndFade 
-                data-[state=delayed-open]:data-[side=right]:animate-slideLeftAndFade 
-                data-[state=delayed-open]:data-[side=left]:animate-slideRightAndFade 
-                data-[state=delayed-open]:data-[side=bottom]:animate-slideUpAndFade 
-                text-violet11 
-                select-none 
-                rounded-[4px] 
-                bg-white 
-                px-[15px] 
-                py-[10px] 
-                text-[15px] 
-                leading-none 
-                shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] 
-                will-change-[transform,opacity]
-              "
-              sideOffset={5}
-            >
-              { tooltip }
-              <Tooltip.Arrow className="fill-white" />
-            </Tooltip.Content>
-          </Tooltip.Portal>
-        </Tooltip.Root>
-      </Tooltip.Provider>
+      <Tooltip.Root>
+        <Tooltip.Trigger asChild>
+          <button
+            onClick={onClick}
+            className="
+              flex-shrink-0 
+              flex-grow-0 
+              basis-auto 
+              text-mauve11 
+              h-[25px] 
+              px-[5px] 
+              rounded 
+              inline-flex 
+              text-[13px] 
+              leading-none 
+              items-center 
+              justify-center 
+              bg-white 
+              ml-0.5 
+              outline-none 
+              hover:bg-violet3 
+              hover:text-violet11 
+              focus:relative 
+              focus:shadow-[0_0_0_2px] 
+              focus:shadow-violet7 
+              first:ml-0
+            "
+          >
+            { children }
+          </button>
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Content
+            className="
+              data-[state=delayed-open]:data-[side=top]:animate-slideDownAndFade 
+              data-[state=delayed-open]:data-[side=right]:animate-slideLeftAndFade 
+              data-[state=delayed-open]:data-[side=left]:animate-slideRightAndFade 
+              data-[state=delayed-open]:data-[side=bottom]:animate-slideUpAndFade 
+              text-violet11 
+              select-none 
+              rounded-[4px] 
+              bg-white 
+              px-[15px] 
+              py-[10px] 
+              text-[15px] 
+              leading-none 
+              shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] 
+              will-change-[transform,opacity]
+            "
+            sideOffset={5}
+          >
+            { tooltip }
+            <Tooltip.Arrow className="fill-white" />
+          </Tooltip.Content>
+        </Tooltip.Portal>
+      </Tooltip.Root>
     </>
   );
 }
@@ -140,7 +138,17 @@ export interface IChatProps {
   /** The ID of the chat. */
   cid?: string;
 
+  /** Action to perform when 'back' button is pressed. */
   onBack?: () => void;
+
+  onRename?: () => void;
+  onArchive?: () => void;
+  onUnarchive?: () => void;
+  onDelete?: () => void;
+  onDuplicate?: () => void;
+  onExport?: () => void;
+  onMakeTemplate?: () => void;
+  onOpenSettings?: () => void;
 }
 
 /**
@@ -148,25 +156,38 @@ export interface IChatProps {
  * send messages, edit messages, delete messages, and modity
  * the chat's settings.
  */
-function Chat({onBack}: IChatProps) {
-  // if (!cid) {
-  //   return <h1>No chat selected.</h1>;
-  // }
-
+function Chat(props: IChatProps) {
   const { 
     id,
     name,
     createdAt,
     updatedAt,
+    archived,
     model,
     fromTemplate,
     messages,
   } = demoChat;
 
+  // Get the chat-level actions...
+  const {
+    onBack,
+    onRename,
+    onArchive,
+    onUnarchive,
+    onDelete,
+    onDuplicate,
+    onExport,
+    onMakeTemplate,
+    onOpenSettings,
+  } = props;
+
+  // if (!cid) {
+  //   return <h1>No chat selected.</h1>;
+  // }
   return (
-    <div className="h-screen overflow-hidden">
-      <div className="max-w-3xl mx-auto px-4 py-4">
-        <h1 className="font-semibold text-3xl mb-6 line-clamp-1">
+    <div className="h-screen flex flex-col">
+      <div className="max-w-3xl mx-auto px-4 py-4 w-full">
+        <h1 className="w-full font-semibold text-3xl mb-6 line-clamp-1">
           { name }
         </h1>
         
@@ -183,49 +204,49 @@ function Chat({onBack}: IChatProps) {
               icon: <Pencil2Icon className="w-4 h-4"/>,
               text: "Rename",
               tooltip: "Rename chat",
-              action: () => {},
+              action: onRename,
             },
             {
               icon: <ArchiveIcon className="w-4 h-4"/>,
-              text: "Archive",
-              tooltip: "Archive chat",
-              action: () => {},
+              text: archived ? "Unarchive" : "Archive",
+              tooltip: archived ? "Unarchive chat" : "Archive chat",
+              action: archived ? onUnarchive : onArchive,
             },
             {
               icon: <TrashIcon className="w-4 h-4"/>,
               text: "Delete",
               tooltip: "Delete Permanently",
-              action: () => {},
+              action: onDelete,
             },
             {
               icon: <CopyIcon className="w-4 h-4"/>,
               text: "Duplicate",
               tooltip: "Duplicate chat",
-              action: () => {},
+              action: onDuplicate,
             },
             {
               icon: <DownloadIcon className="w-4 h-4"/>,
               text: "Export",
               tooltip: "Export chat",
-              action: () => {},
+              action: onExport,
             },
             {
               icon: <Component1Icon className="w-4 h-4"/>,
               text: "Make template",
               tooltip: "Make template from chat",
-              action: () => {},
+              action: onMakeTemplate,
             },
             {
               icon: <MixIcon className="w-4 h-4"/>,
               text: "Settings",
               tooltip: "Open chat settings",
-              action: () => {},
+              action: onOpenSettings,
             },
           ]}
         />
 
-        {/* (Temp) Chat Tags */}
-        <div className="mb-6 font-sm">
+        {/* (Temp?) Chat Tags */}
+        <div className="mb-2 font-sm">
           <div className="flex flex-row space-x-2">
             <span className="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
               model: { model }
@@ -235,11 +256,16 @@ function Chat({onBack}: IChatProps) {
                 template: { fromTemplate.name }
               </span>
             )}
+            {archived && (
+              <span className="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-600/20">
+                archived
+              </span>
+            )}
           </div>
           {/* ... */}
         </div>
       </div>
-      
+
       <ChatMessageList />
       <ChatInput />
     </div>

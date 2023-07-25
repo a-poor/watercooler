@@ -35,3 +35,36 @@ export enum UserRole {
     System = 'system',
     Function = 'function',
 }
+
+export function userRoleToTxt(role: UserRole): string {
+    if (role === UserRole.User) { 
+        return "User";
+    }
+    if (role === UserRole.Assistant) { 
+        return "Assistant";
+    }
+    if (role === UserRole.System) { 
+        return "System";
+    }
+    if (role === UserRole.Function) { 
+        return "Function";
+    }
+    throw new Error(`Unknown role: ${role}`);
+}
+
+export function userRoleFromTxt(role: string): UserRole {
+    const rs = role.toLowerCase().trim();
+    if (rs === "user") { 
+        return UserRole.User;
+    }
+    if (rs === "assistant") { 
+        return UserRole.Assistant;
+    }
+    if (rs === "system") { 
+        return UserRole.System;
+    }
+    if (rs === "function") { 
+        return UserRole.Function;
+    }
+    throw new Error(`Unknown role: ${role}`);
+}
