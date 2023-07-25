@@ -14,6 +14,10 @@ export interface IChatDetails {
     updatedAt: string;
     archived: boolean;
     model: string;
+    fromTemplate?: {
+        id: string;
+        name: string;
+    };
     messages: IMessage[];
 }
 
@@ -23,4 +27,11 @@ export interface IChatSettings {
 
 export interface IMessage {
     id: string;
+}
+
+export enum UserRole {
+    User = 'user',
+    Assistant = 'assistant',
+    System = 'system',
+    Function = 'function',
 }

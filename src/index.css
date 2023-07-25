@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 html body #root {
-    @apply w-screen h-screen;
+    @apply w-screen h-screen bg-white;
 }

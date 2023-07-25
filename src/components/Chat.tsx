@@ -11,7 +11,9 @@ import {
   MixIcon,
 } from '@radix-ui/react-icons';
 
-import type { IChatDetails } from '@/api';
+import ChatMessageList from '@/components/ChatMessageList';
+import ChatInput from '@/components/ChatInput';
+import { IChatDetails } from '@/api';
 
 
 const demoChat = {
@@ -21,6 +23,10 @@ const demoChat = {
   updatedAt: "2023-07-24 08:30:00",
   archived: false,
   model: "gpt-4",
+  fromTemplate: {
+    id: "001",
+    name: "Demo Template",
+  },
   messages: [],
 } satisfies IChatDetails;
 
@@ -107,7 +113,7 @@ interface IMenuBarProps {
 
 function MenuBar({ items }: IMenuBarProps) {
   return (
-    <div className="mb-6 flex flex-row items-center space-x-2">
+    <div className="mb-3 flex flex-row items-center space-x-2">
       {items.map((item, i) => (
         <div key={i}>
           <MenuButton 
@@ -153,6 +159,7 @@ function Chat({onBack}: IChatProps) {
     createdAt,
     updatedAt,
     model,
+    fromTemplate,
     messages,
   } = demoChat;
 
@@ -219,36 +226,22 @@ function Chat({onBack}: IChatProps) {
 
         {/* (Temp) Chat Tags */}
         <div className="mb-6 font-sm">
-          <span className="rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-            { model }
-          </span>
+          <div className="flex flex-row space-x-2">
+            <span className="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
+              model: { model }
+            </span>
+            {fromTemplate && (
+              <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                template: { fromTemplate.name }
+              </span>
+            )}
+          </div>
           {/* ... */}
         </div>
-
-        {/* List of chats. */}
-        <div className="scroll-y-auto">
-          <ul className="flex flex-col space-y-2 -mx-1">
-            {/* {chats
-              .filter(c => showArchived || !c.archived)
-              .map(c => (
-                <li key={c.id} className="flex flex-row hover:bg-slate-100 rounded-lg">
-                  <ChatItem 
-                    name={c.name}
-                    archived={c.archived}
-                    onOpen={() => openChat?.(c.id)}
-                    onRename={() => console.log(`Rename-ing chat ${c.id}`)}
-                    onArchive={() => console.log(`Archive-ing chat ${c.id}`)}
-                    onUnarchive={() => console.log(`Unarchive-ing chat ${c.id}`)}
-                    onDelete={() => console.log(`Delete-ing chat ${c.id}`)}
-                    onDuplicate={() => console.log(`Duplicate-ing chat ${c.id}`)}
-                    onExport={() => console.log(`Export-ing chat ${c.id}`)}
-                    onCreateTemplate={() => console.log(`CreateTemplate-ing chat ${c.id}`)}
-                  />
-                </li>
-            ))} */}
-          </ul>
-        </div>
       </div>
+      
+      <ChatMessageList />
+      <ChatInput />
     </div>
   );
 }

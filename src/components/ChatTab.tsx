@@ -33,7 +33,9 @@ function ChatTab() {
         />
       )}
       {openTab === OpenTab.Settings && (
-        <ChatSettings />
+        <ChatSettings 
+          onBack={() => setOpenTab(OpenTab.List)}
+        />
       )}
     </>
   );
