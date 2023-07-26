@@ -12,7 +12,7 @@ enum OpenTab {
 
 function ChatTab() {
   const [openTab, setOpenTab] = useState<OpenTab>(OpenTab.Chat);
-  const [activeChat, setActiveChat] = useState<string | null>(null);
+  const [activeChat, setActiveChat] = useState<string | null>("abc123");
   return (
     <>
       {openTab === OpenTab.List && (
@@ -28,7 +28,8 @@ function ChatTab() {
         />
       )}
       {openTab === OpenTab.Chat && (
-        <Chat 
+        <Chat
+          id={activeChat}
           onBack={() => setOpenTab(OpenTab.List)}
         />
       )}

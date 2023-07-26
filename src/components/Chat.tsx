@@ -1,5 +1,6 @@
 import { useState, useEffect, ReactNode } from 'react';
 import * as Tooltip from '@radix-ui/react-tooltip';
+import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import { 
   ArrowLeftIcon,
   Pencil2Icon, 
@@ -136,7 +137,7 @@ function MenuBar({ items }: IMenuBarProps) {
 
 export interface IChatProps {
   /** The ID of the chat. */
-  cid?: string;
+  id?: string;
 
   /** Action to perform when 'back' button is pressed. */
   onBack?: () => void;
@@ -181,9 +182,10 @@ function Chat(props: IChatProps) {
     onOpenSettings,
   } = props;
 
-  // if (!cid) {
-  //   return <h1>No chat selected.</h1>;
-  // }
+  // If the ID is not set, don't show anything...
+  if (!id) {
+    return <></>;
+  }
   return (
     <div className="h-screen flex flex-col">
       <div className="max-w-3xl mx-auto px-4 py-4 w-full">
@@ -248,9 +250,11 @@ function Chat(props: IChatProps) {
         {/* (Temp?) Chat Tags */}
         <div className="mb-2 font-sm">
           <div className="flex flex-row space-x-2">
-            <span className="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
-              model: { model }
-            </span>
+            {model && (
+              <span className="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
+                model: { model }
+              </span>
+            )}
             {fromTemplate && (
               <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
                 template: { fromTemplate.name }
@@ -267,7 +271,10 @@ function Chat(props: IChatProps) {
       </div>
 
       <ChatMessageList />
-      <ChatInput />
+      
+      <ChatInput 
+        onSubmit={(message: string) => { console.log(message); }}
+      />
     </div>
   );
 }
