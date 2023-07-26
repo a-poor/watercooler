@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as Tooltip from '@radix-ui/react-tooltip';
+import toast, { Toaster } from 'react-hot-toast';
 
 import NavBar, { NavBarTabs } from '@/components/NavBar';
 import ChatTab from '@/components/ChatTab';
@@ -10,6 +11,11 @@ import AppSettings from '@/components/AppSettings';
 
 function App() {
   const [activeTab, setActiveTab] = useState<NavBarTabs>('chat');
+  useEffect(() => {
+    setTimeout(() => {
+      toast.success("Welcome to the chat app!");
+    }, 1000);
+  }, []);
   return (
     <Tooltip.Provider>
       <div className="flex flex-row h-screen">
@@ -32,6 +38,7 @@ function App() {
           )}
         </main>
       </div>
+      <Toaster />
     </Tooltip.Provider>
   );
 }

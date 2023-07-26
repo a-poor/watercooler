@@ -251,27 +251,74 @@ function Chat(props: IChatProps) {
         <div className="mb-2 font-sm">
           <div className="flex flex-row space-x-2">
             {model && (
-              <span className="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
+              <span 
+                className="
+                  inline-flex 
+                  items-center 
+                  rounded-md 
+                  bg-indigo-50 
+                  px-2 
+                  py-1 
+                  text-xs 
+                  font-medium 
+                  text-indigo-700 
+                  ring-1 
+                  ring-inset 
+                  ring-indigo-700/10
+                "
+              >
                 model: { model }
               </span>
             )}
             {fromTemplate && (
-              <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+              <span 
+                className="
+                  inline-flex 
+                  items-center 
+                  rounded-md 
+                  bg-green-50 
+                  px-2 
+                  py-1 
+                  text-xs 
+                  font-medium 
+                  text-green-700 
+                  ring-1 
+                  ring-inset 
+                  ring-green-600/20
+                "
+              >
                 template: { fromTemplate.name }
               </span>
             )}
             {archived && (
-              <span className="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-600/20">
+              <span 
+                className="
+                  inline-flex 
+                  items-center 
+                  rounded-md 
+                  bg-yellow-50 
+                  px-2 
+                  py-1 
+                  text-xs 
+                  font-medium 
+                  text-yellow-700 
+                  ring-1 
+                  ring-inset 
+                  ring-yellow-600/20
+                "
+              >
                 archived
               </span>
             )}
           </div>
-          {/* ... */}
+          {/* More? ... */}
         </div>
       </div>
 
+      {/* The list of messages... */}
       <ChatMessageList />
       
+      {/* The input for sending new messages... */}
       <ChatInput 
         onSubmit={(message: string) => { console.log(message); }}
       />

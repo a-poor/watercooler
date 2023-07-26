@@ -3,6 +3,7 @@ import { PaperPlaneIcon } from "@radix-ui/react-icons";
 
 
 export interface IChatInputProps {
+  initialInputValue?: string;
   onSubmit: (message: string) => void;
 }
 
@@ -10,12 +11,12 @@ export interface IChatInputProps {
  * A component that allows the user to input a message
  * and send it to the chat.
  */
-function ChatInput({onSubmit}: IChatInputProps) {
-  const [value, setValue] = useState("");
+function ChatInput({initialInputValue, onSubmit}: IChatInputProps) {
+  const [value, setValue] = useState(initialInputValue || "");
   return (
     <div className="">
       <div className="max-w-3xl mx-auto py-4 px-1 relative">
-        <label for="message" class="sr-only">Enter a message</label>
+        <label htmlFor="message" className="sr-only">Enter a message</label>
         <textarea 
           value={value}
           onChange={(e) => setValue(e.target.value)}

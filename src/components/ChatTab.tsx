@@ -29,7 +29,7 @@ function ChatTab() {
       )}
       {openTab === OpenTab.Chat && (
         <Chat
-          id={activeChat}
+          id={activeChat || undefined}
           onBack={() => setOpenTab(OpenTab.List)}
         />
       )}

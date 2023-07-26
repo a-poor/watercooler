@@ -5,6 +5,8 @@ export interface IChatSummary {
     createdAt: string;
     updatedAt: string;
     archived: boolean;
+    fromTemplate?: string;
+    model?: string;
 }
 
 export interface IChatDetails {

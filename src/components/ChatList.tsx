@@ -2,7 +2,7 @@ import { useState } from 'react';
 import * as Switch from '@radix-ui/react-switch';
 import * as Label from '@radix-ui/react-label';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { PlusIcon, DotsHorizontalIcon, MixIcon } from '@radix-ui/react-icons';
+import { PlusIcon, DotsHorizontalIcon, MixIcon, StackIcon } from '@radix-ui/react-icons';
 
 import type { IChatSummary } from '@/api';
 
@@ -14,6 +14,8 @@ const dummyChats: IChatSummary[] = [
     createdAt: "2023-07-20",
     updatedAt: "2023-07-20",
     archived: false,
+    fromTemplate: "Demo Template 1",
+    model: "gpt-4",
   },
   {
     id: "02",
@@ -21,6 +23,7 @@ const dummyChats: IChatSummary[] = [
     createdAt: "2023-07-20",
     updatedAt: "2023-07-20",
     archived: true,
+    model: "gpt-3.5-turbo",
   },
   {
     id: "03",
@@ -28,6 +31,7 @@ const dummyChats: IChatSummary[] = [
     createdAt: "2023-07-20",
     updatedAt: "2023-07-20",
     archived: false,
+    fromTemplate: "Demo Template 1",
   },
   {
     id: "04",
@@ -154,6 +158,10 @@ interface IChatItemProps {
   name: string;
   /** Is the message archived? */
   archived: boolean;
+  /** The name of the template this chat is based on, if any. */
+  fromTemplate?: string;
+  /** The name of the model used by this chat. */
+  model?: string;
   /** Action to perform to open the chat. */
   onOpen?: () => void;
   /** Action to perform to rename the chat */
@@ -172,13 +180,55 @@ interface IChatItemProps {
   onCreateTemplate?: () => void;
 }
 
-function ChatItem({name, archived, onOpen, ...actions}: IChatItemProps) {
+function ChatItem({name, archived, fromTemplate, model, onOpen, ...actions}: IChatItemProps) {
   return (
     <>
-      <button className="px-3 py-2 flex-grow text-left" onClick={onOpen}>
-        <span className={archived ? "line-through text-slate-500" : ""}>
+      <button className="px-3 py-2 flex-grow text-left space-y-1" onClick={onOpen}>
+        <div className={archived ? "line-through text-slate-500" : ""}>
           { name }
-        </span>
+        </div>
+        <div className="flex flex-row space-x-2">
+          {model && (
+            <span 
+              className="
+                inline-flex 
+                items-center 
+                rounded-md 
+                bg-indigo-50 
+                px-2 
+                py-1 
+                text-xs 
+                font-medium 
+                text-indigo-700 
+                ring-1 
+                ring-inset 
+                ring-indigo-700/10
+              "
+            >
+              model: { model }
+            </span>
+          )}
+          {fromTemplate && (
+            <span 
+              className="
+                inline-flex 
+                items-center 
+                rounded-md 
+                bg-green-50 
+                px-2 
+                py-1 
+                text-xs 
+                font-medium 
+                text-green-700 
+                ring-1 
+                ring-inset 
+                ring-green-600/20
+              "
+            >
+              template: { fromTemplate }
+            </span>
+          )}
+        </div>
       </button>
       <div className="mx-3 my-2">
         <ChatItemMenu 
@@ -202,12 +252,12 @@ export interface IChatListProps {
  * A component that displays a list of chats, archived chats,
  * and a button to create a new chat.
  */
-function ChatList({createChat, openChat, openSettings}: IChatListProps) {
+function ChatList({createChat, createChatFromTemplate, openChat, openSettings}: IChatListProps) {
   const [showArchived, setShowArchived] = useState<boolean>(false);
   const [chats, _setChats] = useState<IChatSummary[]>(dummyChats);
   return (
     <div className="h-screen overflow-hidden">
-      <div className="max-w-3xl mx-auto px-4 py-4">
+      <div className="max-w-3xl mx-auto px-4 py-4 h-full flex flex-col">
         <h1 className="font-semibold text-3xl mb-6">
           Your Chats
         </h1>
@@ -241,14 +291,39 @@ function ChatList({createChat, openChat, openSettings}: IChatListProps) {
           </div>
           <div>
             <button
-              onClick={openSettings}
+              onClick={createChatFromTemplate}
               className="
-                text-mauve11
+                text-violet11
+                hover:bg-mauve3 
                 h-[35px]
                 justify-center 
                 rounded-[4px] 
-                bg-mauve6
+                bg-violet6
+                font-medium 
+                leading-none  
+                focus:outline-none
+                px-2
+                flex
+                space-x-2
+                items-center
+              "
+            >
+              <StackIcon className="w-4 h-4 inline-block stroke-violet11 stroke-[0.5]" />
+              <span className="font-medium">
+                New from Template
+              </span>
+            </button>
+          </div>
+          <div>
+            <button
+              onClick={openSettings}
+              className="
+                text-violet11
                 hover:bg-mauve3 
+                h-[35px]
+                justify-center 
+                rounded-[4px] 
+                bg-violet6
                 font-medium 
                 leading-none  
                 focus:outline-none
@@ -260,7 +335,7 @@ function ChatList({createChat, openChat, openSettings}: IChatListProps) {
             >
               <MixIcon className="w-4 h-4 inline-block stroke-violet11 stroke-[0.5]" />
               <span className="font-medium">
-                Chat Settings
+                Settings
               </span>
             </button>
           </div>
@@ -312,8 +387,8 @@ function ChatList({createChat, openChat, openSettings}: IChatListProps) {
         </div>
 
         {/* List of chats. */}
-        <div className="scroll-y-auto">
-          <ul className="flex flex-col space-y-2 -mx-1">
+        <div className="flex-grow overflow-x-hidden overflow-y-scroll">
+          <ul className="h-full flex flex-col space-y-2 -mx-1">
             {chats
               .filter(c => showArchived || !c.archived)
               .map(c => (
@@ -321,6 +396,8 @@ function ChatList({createChat, openChat, openSettings}: IChatListProps) {
                   <ChatItem 
                     name={c.name}
                     archived={c.archived}
+                    fromTemplate={c.fromTemplate}
+                    model={c.model}
                     onOpen={() => openChat?.(c.id)}
                     onRename={() => console.log(`Rename-ing chat ${c.id}`)}
                     onArchive={() => console.log(`Archive-ing chat ${c.id}`)}
