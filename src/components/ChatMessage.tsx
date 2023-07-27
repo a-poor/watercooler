@@ -16,12 +16,46 @@ import {
 interface IMessageDropdownMenuProps {
   role: UserRole;
   setRole: (role: UserRole) => void;
+  
+  onCopyText?: () => void;
+  onEditText?: () => void;
+  onDeleteCell?: () => void;
+  onDuplicateCell?: () => void;
+  onInsertCellAbove?: () => void;
+  onInsertCellBelow?: () => void;
+  canMoveCellUp?: boolean;
+  onMoveCellUp?: () => void;
+  canMoveCellDown?: boolean;
+  onMoveCellDown?: () => void;
+  hideSkipCell?: boolean;
+  cellSkipped?: boolean;
+  onSkipCell?: () => void;
+  onUnskipCell?: () => void;
 }
 
-function MessageDropdownMenu({role, setRole}: IMessageDropdownMenuProps) {
-  const [bookmarksChecked, setBookmarksChecked] = useState(true);
-  const [urlsChecked, setUrlsChecked] = useState(false);
+function MessageDropdownMenu(props: IMessageDropdownMenuProps) {
+  // Unpack the props...
+  const {
+    role,
+    setRole,
 
+    onCopyText,
+    onEditText,
+    onDeleteCell,
+    onDuplicateCell,
+    onInsertCellAbove,
+    onInsertCellBelow,
+    canMoveCellUp,
+    onMoveCellUp,
+    canMoveCellDown,
+    onMoveCellDown,
+    hideSkipCell,
+    cellSkipped,
+    onSkipCell,
+    onUnskipCell,
+  } = props;
+
+  const [bookmarksChecked, setBookmarksChecked] = useState(true);
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
@@ -111,29 +145,6 @@ function MessageDropdownMenu({role, setRole}: IMessageDropdownMenuProps) {
 
           <DropdownMenu.Separator className="h-[1px] bg-violet6 m-[5px]" />
 
-          <DropdownMenu.Item 
-            className="
-              group 
-              text-[13px] 
-              leading-none 
-              text-violet11 
-              rounded-[3px] 
-              flex 
-              items-center 
-              h-[25px] 
-              px-[5px] 
-              relative 
-              pl-[25px] 
-              select-none 
-              outline-none 
-              data-[disabled]:text-mauve8 
-              data-[disabled]:pointer-events-none 
-              data-[highlighted]:bg-violet9 
-              data-[highlighted]:text-violet1
-            "
-          >
-            Delete Cell
-          </DropdownMenu.Item>
           <DropdownMenu.Item 
             className="
               group 
@@ -252,16 +263,42 @@ function MessageDropdownMenu({role, setRole}: IMessageDropdownMenuProps) {
 
           <DropdownMenu.Separator className="h-[1px] bg-violet6 m-[5px]" />
 
-          <DropdownMenu.CheckboxItem
-            className="group text-[13px] leading-none text-violet11 rounded-[3px] flex items-center h-[25px] px-[5px] relative pl-[25px] select-none outline-none data-[disabled]:text-mauve8 data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[highlighted]:text-violet1"
-            checked={bookmarksChecked}
-            onCheckedChange={setBookmarksChecked}
+          <DropdownMenu.Item
+            onClick={onDeleteCell}
+            className="
+              group 
+              text-[13px] 
+              leading-none 
+              text-violet11 
+              rounded-[3px] 
+              flex 
+              items-center 
+              h-[25px] 
+              px-[5px] 
+              relative 
+              pl-[25px] 
+              select-none 
+              outline-none 
+              data-[disabled]:text-mauve8 
+              data-[disabled]:pointer-events-none 
+              data-[highlighted]:bg-violet9 
+              data-[highlighted]:text-violet1
+            "
           >
-            <DropdownMenu.ItemIndicator className="absolute left-0 w-[25px] inline-flex items-center justify-center">
-              <CheckIcon />
-            </DropdownMenu.ItemIndicator>
-            Skip Cell
-          </DropdownMenu.CheckboxItem>
+            Delete Cell
+          </DropdownMenu.Item>
+          {!hideSkipCell && (
+            <DropdownMenu.CheckboxItem
+              className="group text-[13px] leading-none text-violet11 rounded-[3px] flex items-center h-[25px] px-[5px] relative pl-[25px] select-none outline-none data-[disabled]:text-mauve8 data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[highlighted]:text-violet1"
+              checked={cellSkipped}
+              onCheckedChange={cellSkipped ? onUnskipCell : onSkipCell}
+            >
+              <DropdownMenu.ItemIndicator className="absolute left-0 w-[25px] inline-flex items-center justify-center">
+                <CheckIcon />
+              </DropdownMenu.ItemIndicator>
+              Skip Cell
+            </DropdownMenu.CheckboxItem>
+          )}
 
           <DropdownMenu.Separator className="h-[1px] bg-violet6 m-[5px]" />
 

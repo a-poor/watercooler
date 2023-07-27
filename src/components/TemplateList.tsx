@@ -71,10 +71,6 @@ function ChatItemMenu({archived, onArchive, onUnarchive, onRename, onDelete, onD
       action: () => onDuplicate?.(),
     },
     {
-      text: "Make Template",
-      action: () => onCreateTemplate?.(),
-    },
-    {
       text: archived ? "Unarchive Chat" : "Archive Chat",
       action: () => { 
         if (archived) { 
@@ -83,10 +79,6 @@ function ChatItemMenu({archived, onArchive, onUnarchive, onRename, onDelete, onD
           onArchive?.();
         }
       },
-    },
-    {
-      text: "Export Chat",
-      action: () => onExport?.(),
     },
     {
       text: "Delete Permamently",

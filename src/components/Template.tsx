@@ -226,18 +226,6 @@ function Template(props: ITemplateProps) {
               action: onDuplicate,
             },
             {
-              icon: <DownloadIcon className="w-4 h-4"/>,
-              text: "Export",
-              tooltip: "Export chat",
-              action: onExport,
-            },
-            {
-              icon: <Component1Icon className="w-4 h-4"/>,
-              text: "Make template",
-              tooltip: "Make template from chat",
-              action: onMakeTemplate,
-            },
-            {
               icon: <MixIcon className="w-4 h-4"/>,
               text: "Settings",
               tooltip: "Open chat settings",

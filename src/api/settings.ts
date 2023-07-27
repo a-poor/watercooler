@@ -9,7 +9,7 @@ export async function getAppSettings() {
 /**
  * Set the top-level app settings.
  */
-export async function setAppSettings() {
+export async function updateAppSettings() {
     throw new Error("Not implemented");
 }
 
