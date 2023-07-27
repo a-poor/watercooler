@@ -11,11 +11,11 @@ import AppSettings from '@/components/AppSettings';
 
 function App() {
   const [activeTab, setActiveTab] = useState<NavBarTabs>('chat');
-  useEffect(() => {
-    setTimeout(() => {
-      toast.success("Welcome to the chat app!");
-    }, 1000);
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     toast.success("Welcome to the chat app!");
+  //   }, 1000);
+  // }, []);
   return (
     <Tooltip.Provider>
       <div className="flex flex-row h-screen">
