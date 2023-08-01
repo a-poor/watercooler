@@ -6,13 +6,18 @@
 use std::fs::create_dir_all;
 use std::sync::Mutex;
 use rusqlite::Connection;
+use anyhow::{Result, anyhow};
 use tauri::api::path::{app_config_dir, app_data_dir};
+
 mod settings;
 mod api;
-mod storage;
+mod old_storage;
+mod openai;
+mod migrate;
+mod chat;
 
 
-fn main() {
+fn main() -> Result<()> {
     // Get the context...
     let ctx = tauri::generate_context!();
 
@@ -43,41 +48,16 @@ fn main() {
     // Get the database connection...
     let db_conn = match data_db_path {
         Some(ref p) => {
-            let c = Connection::open(p);
-            match c {
-                Ok(c) => {
-                    // Create the tables if they don't exist...
-                    let s = "CREATE TABLE IF NOT EXISTS chats (
-                        id INT,
-                        name TEXT
-                    );";
-                    match c.execute(s, []) {
-                        Ok(_) => {},
-                        Err(err) => {
-                            println!("Failed to create chats table: {}", err);
-                        },
-                    };
-                    let s = "CREATE TABLE IF NOT EXISTS chat_messages (
-                        id INT,
-                        chat_id INT,
-                        role TEXT,
-                        content TEXT
-                    );";
-                    match c.execute(s, []) {
-                        Ok(_) => {},
-                        Err(err) => {
-                            println!("Failed to create chats table: {}", err);
-                        },
-                    };
+            // Get the connection...
+            let c = Connection::open(p)
+                .map_err(|err| anyhow!("Failed to open database: {}", err))?;
 
-                    // Return the connection...
-                    Some(Mutex::new(c))
-                },
-                Err(err) => {
-                    println!("Failed to open database: {}", err);
-                    None
-                },
-            }
+            // Run the migration...
+            migrate::run_migrations(&c)
+                .map_err(|err| anyhow!("Failed to migrate database: {}", err))?;
+
+            // Return the connection...
+            Some(Mutex::new(c))
         },
         None => {
             println!("Failed to get data dir");
@@ -97,14 +77,16 @@ fn main() {
             settings::get_default_settings,
             settings::set_settings,
             api::send_chat_request,
-            storage::list_chats,
-            storage::add_chat,
-            storage::rename_chat,
-            storage::delete_chat,
-            storage::get_messages,
-            storage::add_message,
-            storage::delete_message,
+            old_storage::list_chats,
+            old_storage::add_chat,
+            old_storage::rename_chat,
+            old_storage::delete_chat,
+            old_storage::get_messages,
+            old_storage::add_message,
+            old_storage::delete_message,
         ])
         .run(ctx)
         .expect("error while running tauri application");
+
+    Ok(())
 }

@@ -2,7 +2,7 @@ use anyhow::anyhow;
 use serde::{Serialize, Deserialize};
 use tauri::async_runtime::Mutex;
 use crate::{
-    storage::_add_message,
+    old_storage::_add_message,
     settings::{AppState, _get_settings}
 };
 
