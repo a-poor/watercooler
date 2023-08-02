@@ -12,6 +12,7 @@ use tauri::api::path::{app_config_dir, app_data_dir};
 mod settings;
 mod api;
 mod old_storage;
+mod storage;
 mod openai;
 mod migrate;
 mod chat;
