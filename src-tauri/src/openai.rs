@@ -1,66 +1,107 @@
 //! Handles connections to the OpenAI API.
 
+use url::Url;
+use anyhow::{anyhow, Result};
 use serde::{Serialize, Deserialize};
 
 /// The default base URL for the OpenAI API.
-pub const DEFAULT_API_BASE_URL: &str = "https://api.openai.com";
+const DEFAULT_API_BASE_URL: &str = "https://api.openai.com";
 
 /// The API path to create a new chat completion.
-pub const ENDPOINT_CREATE_CHAT_COMPLETION: &str = "/v1/chat/completions";
+const ENDPOINT_CREATE_CHAT_COMPLETION: &str = "/v1/chat/completions";
 
-// /// The API path to create a new audio transcription.
-// pub const ENDPOINT_CREATE_TRANSCRIPTION: &str = "/v1/audio/transcriptions";
+/// The API path to create a new audio transcription.
+const ENDPOINT_CREATE_TRANSCRIPTION: &str = "/v1/audio/transcriptions";
 
+
+async fn stream_chat_request(host: &str, token: &str, req: ChatCompletionRequest) -> Result<ChatCompletionChunkResponse> {
+    // Ensure that stream is set...
+    // (This probably isn't the best approach, but it works for now)
+    let mut req = req.clone();
+    req.stream = Some(true);
+
+    // Format the url...
+    let url = Url::parse(host)?;
+    let url = url.join(ENDPOINT_CREATE_CHAT_COMPLETION)?;
+
+    // Format the request...
+    let res = reqwest::Client::new()
+        .post(url)
+        .json(&req)
+        .bearer_auth(token)
+        .send()
+        .await?;
+
+    // Check the status code...
+    // TODO - See `res.error_for_status()`?
+    if !res.status().is_success() {
+        return Err(anyhow!("Failed to create chat completion: {}", res.status()));
+    }
+
+    // Otherwise, stream the response...
+    
+
+    todo!();
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ChatCompletionRequest {
-    pub model: String,
-    pub messages: Vec<ChatMessage>,
-    pub functions: Option<Vec<FunctionCall>>,
-    pub function_call: Option<FunctionCallType>,
-    pub temperature: Option<f64>,
-    pub top_p: Option<f64>,
-    pub n: Option<u32>,
-    pub stream: Option<bool>,
+struct ChatCompletionRequest {
+    model: String,
+    messages: Vec<ChatMessage>,
+    functions: Option<Vec<FunctionCall>>,
+    function_call: Option<FunctionCallType>,
+    temperature: Option<f64>,
+    top_p: Option<f64>,
+    n: Option<u32>,
+    stream: Option<bool>,
     /// Note: Officially, this could be either a sring, an array of
     /// strings, or null. However, for simplicity, I'm just going to
     /// use either an array of strings (which could have only a 
     /// stop-sequence string) or null.
-    pub stop: Option<Vec<String>>,
-    pub max_tokens: Option<u64>,
-    pub presence_penalty: Option<f64>,
-    pub frequency_penalty: Option<f64>,
-    // pub logit_bias: Option<serde_json::Value>,
-    pub user: Option<String>,
+    stop: Option<Vec<String>>,
+    max_tokens: Option<u64>,
+    presence_penalty: Option<f64>,
+    frequency_penalty: Option<f64>,
+    // logit_bias: Option<serde_json::Value>,
+    user: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ChatCompletionResponse {
-    pub id: String,
-    pub object: String,
-    pub created: i64,
-    pub model: String,
-    pub choices: Vec<ChatCompletionChoice>,
-    pub usage: ChatCompletionUsage,
+struct ChatCompletionResponse {
+    id: String,
+    object: String,
+    created: i64,
+    model: String,
+    choices: Vec<ChatCompletionChoice>,
+    usage: ChatCompletionUsage,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ChatMessage {
-    pub role: String,
-    pub content: Option<String>,
-    pub name: Option<String>,
-    pub function_call: Option<FunctionCall>,
+struct ChatCompletionChunkResponse {
+    id: String,
+    object: String,
+    created: i64,
+    model: String,
+    choices: Vec<ChatCompletionChunkChoice>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Function {
-    pub name: String,
-    pub description: Option<String>,
-    pub parameters: serde_json::Value,
+struct ChatMessage {
+    role: String,
+    content: Option<String>,
+    name: Option<String>,
+    function_call: Option<FunctionCall>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum FunctionCallType {
+struct Function {
+    name: String,
+    description: Option<String>,
+    parameters: serde_json::Value,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+enum FunctionCallType {
     #[serde(rename = "none")]
     None,
     #[serde(rename = "auto")]
@@ -70,53 +111,44 @@ pub enum FunctionCallType {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ChatCompletionChoice {
-    pub index: i64,
-    pub message: ChatCompletionMessage,
-    pub finish_reason: Option<String>,
+struct ChatCompletionChoice {
+    index: i64,
+    message: ChatCompletionMessage,
+    finish_reason: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ChatCompletionMessage {
-    pub role: String,
-    pub content: Option<String>,
-    pub function_call: Option<FunctionCall>,
+struct ChatCompletionMessage {
+    role: String,
+    content: Option<String>,
+    function_call: Option<FunctionCall>,
 
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct FunctionCall {
-    pub name: String,
-    pub arguments: String,
+struct FunctionCall {
+    name: String,
+    arguments: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ChatCompletionUsage {
-    pub prompt_tokens: i64,
-    pub completion_tokens: i64,
-    pub total_tokens: i64,
+struct ChatCompletionUsage {
+    prompt_tokens: i64,
+    completion_tokens: i64,
+    total_tokens: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ChatCompletionChunkResponse {
-    pub id: String,
-    pub object: String,
-    pub created: i64,
-    pub model: String,
-    pub choices: Vec<ChatCompletionChunkChoice>,
+struct ChatCompletionChunkChoice {
+    index: i64,
+    delta: ChatCompletionChunkMessage,
+    finish_reason: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ChatCompletionChunkChoice {
-    pub index: i64,
-    pub delta: ChatCompletionChunkMessage,
-    pub finish_reason: Option<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ChatCompletionChunkMessage {
-    pub role: String,
-    pub content: Option<String>,
-    pub function_call: Option<FunctionCall>,   
+struct ChatCompletionChunkMessage {
+    role: String,
+    content: Option<String>,
+    function_call: Option<FunctionCall>,   
 }
 
