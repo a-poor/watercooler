@@ -11,8 +11,10 @@ enum OpenTab {
 }
 
 function ChatTab() {
-  const [openTab, setOpenTab] = useState<OpenTab>(OpenTab.Chat);
-  const [activeChat, setActiveChat] = useState<string | null>("abc123");
+  // const [openTab, setOpenTab] = useState<OpenTab>(OpenTab.Chat);
+  // const [activeChat, setActiveChat] = useState<string | null>("abc123");
+  const [openTab, setOpenTab] = useState<OpenTab>(OpenTab.List);
+  const [activeChat, setActiveChat] = useState<string | null>(null);
   return (
     <>
       {openTab === OpenTab.List && (

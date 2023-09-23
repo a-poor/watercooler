@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import * as Switch from '@radix-ui/react-switch';
 import * as Label from '@radix-ui/react-label';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { PlusIcon, DotsHorizontalIcon, MixIcon, StackIcon } from '@radix-ui/react-icons';
+import { PlusIcon, DotsHorizontalIcon, MixIcon, StackIcon, ArchiveIcon } from '@radix-ui/react-icons';
 
 import type { IChatSummary } from '@/api';
 
@@ -41,6 +42,109 @@ const dummyChats: IChatSummary[] = [
     archived: true,
   },
 ];
+
+
+interface IMenuButtonProps {
+  children?: ReactNode;
+  tooltip?: string;
+  onClick?: () => void;
+}
+
+function MenuButton({children, tooltip, onClick}: IMenuButtonProps) {
+  return (
+    <>
+      <Tooltip.Root>
+        <Tooltip.Trigger asChild>
+          <button
+            onClick={onClick}
+            className="
+              flex-shrink-0 
+              flex-grow-0 
+              basis-auto 
+              text-mauve11 
+              h-[25px] 
+              px-[5px] 
+              rounded 
+              inline-flex 
+              text-[13px] 
+              leading-none 
+              items-center 
+              justify-center 
+              bg-white 
+              ml-0.5 
+              outline-none 
+              hover:bg-violet3 
+              hover:text-violet11 
+              focus:relative 
+              focus:shadow-[0_0_0_2px] 
+              focus:shadow-violet7 
+              first:ml-0
+            "
+          >
+            { children }
+          </button>
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Content
+            className="
+              data-[state=delayed-open]:data-[side=top]:animate-slideDownAndFade 
+              data-[state=delayed-open]:data-[side=right]:animate-slideLeftAndFade 
+              data-[state=delayed-open]:data-[side=left]:animate-slideRightAndFade 
+              data-[state=delayed-open]:data-[side=bottom]:animate-slideUpAndFade 
+              text-violet11 
+              select-none 
+              rounded-[4px] 
+              bg-white 
+              px-[15px] 
+              py-[10px] 
+              text-[15px] 
+              leading-none 
+              shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] 
+              will-change-[transform,opacity]
+            "
+            sideOffset={5}
+          >
+            { tooltip }
+            <Tooltip.Arrow className="fill-white" />
+          </Tooltip.Content>
+        </Tooltip.Portal>
+      </Tooltip.Root>
+    </>
+  );
+}
+
+interface IMenuBarProps {
+  items: {
+    icon: ReactNode;
+    text: string;
+    tooltip?: string;
+    action?: () => void;
+  }[];
+}
+
+function MenuBar({ items }: IMenuBarProps) {
+  return (
+    <div className="mb-3 flex flex-row items-center space-x-2">
+      {items.map((item, i) => (
+        <div key={i}>
+          <MenuButton 
+            onClick={item.action}
+            tooltip={item.tooltip}
+          >
+            <div className="flex flex-row items-center space-x-1">
+              <div>
+                { item.icon }
+              </div>
+              <div className="hidden md:block">
+                { item.text }
+              </div>
+            </div>
+          </MenuButton>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 
 export interface IChatItemMenuProps {
@@ -261,130 +365,35 @@ function ChatList({createChat, createChatFromTemplate, openChat, openSettings}: 
         <h1 className="font-semibold text-3xl mb-6">
           Your Chats
         </h1>
-        
-        {/* Button to create a new chat or show archived chats. */}
-        <div className="mb-6 flex flex-row items-center space-x-2">
-          <div>
-            <button
-              onClick={createChat}
-              className="
-                text-violet11
-                hover:bg-mauve3 
-                h-[35px]
-                justify-center 
-                rounded-[4px] 
-                bg-violet6
-                font-medium 
-                leading-none  
-                focus:outline-none
-                px-2
-                flex
-                space-x-2
-                items-center
-              "
-            >
-              <PlusIcon className="w-4 h-4 inline-block stroke-violet11 stroke-[0.5]" />
-              <span className="font-medium">
-                New Chat
-              </span>
-            </button>
-          </div>
-          <div>
-            <button
-              onClick={createChatFromTemplate}
-              className="
-                text-violet11
-                hover:bg-mauve3 
-                h-[35px]
-                justify-center 
-                rounded-[4px] 
-                bg-violet6
-                font-medium 
-                leading-none  
-                focus:outline-none
-                px-2
-                flex
-                space-x-2
-                items-center
-              "
-            >
-              <StackIcon className="w-4 h-4 inline-block stroke-violet11 stroke-[0.5]" />
-              <span className="font-medium">
-                New from Template
-              </span>
-            </button>
-          </div>
-          <div>
-            <button
-              onClick={openSettings}
-              className="
-                text-violet11
-                hover:bg-mauve3 
-                h-[35px]
-                justify-center 
-                rounded-[4px] 
-                bg-violet6
-                font-medium 
-                leading-none  
-                focus:outline-none
-                px-2
-                flex
-                space-x-2
-                items-center
-              "
-            >
-              <MixIcon className="w-4 h-4 inline-block stroke-violet11 stroke-[0.5]" />
-              <span className="font-medium">
-                Settings
-              </span>
-            </button>
-          </div>
-          <div className="flex-grow" />
-          <div className="flex space-x-2 items-center">
-            <Label.Root 
-              className="tracking-tight text-base" 
-              htmlFor="showArchived"
-            >
-              Show Archived
-            </Label.Root>
-            <Switch.Root
-              id="showArchived"
-              checked={showArchived}
-              onCheckedChange={checked => setShowArchived(checked)}
-              className="
-                w-[42px] 
-                h-[25px] 
-                bg-blackA9 
-                rounded-full 
-                relative 
-                shadow-[0_2px_10px] 
-                shadow-blackA7 
-                focus:shadow-[0_0_0_2px] 
-                focus:shadow-black 
-                data-[state=checked]:bg-black 
-                outline-none 
-                cursor-default
-              "
-            >
-              <Switch.Thumb 
-                className="
-                  block 
-                  w-[21px] 
-                  h-[21px] 
-                  bg-white 
-                  rounded-full 
-                  shadow-[0_2px_2px] 
-                  shadow-blackA7 
-                  transition-transform 
-                  duration-100 
-                  translate-x-0.5 
-                  will-change-transform 
-                  data-[state=checked]:translate-x-[19px]
-                " 
-              />
-            </Switch.Root>
-          </div>
-        </div>
+
+        <MenuBar 
+          items={[
+            {
+              icon: <PlusIcon className="w-4 h-4"/>,
+              text: "New Chat",
+              tooltip: "Create a new chat",
+              action: createChat,
+            },
+            {
+              icon: <StackIcon className="w-4 h-4"/>,
+              text: "New from Template",
+              tooltip: "Create a new chat from a template",
+              action: createChatFromTemplate,
+            },
+            {
+              icon: <MixIcon className="w-4 h-4"/>,
+              text: "Chat Settings",
+              tooltip: "Open general chat settings",
+              action: openSettings,
+            },
+            {
+              icon: <ArchiveIcon className="w-4 h-4"/>,
+              text: showArchived ? "Hide Archived" : "Show Archived",
+              tooltip: showArchived ? "Hide archived chats" : "Show archived chats",
+              action: () => setShowArchived(!showArchived),
+            },
+          ]}
+        />
 
         {/* List of chats. */}
         <div className="flex-grow overflow-x-hidden overflow-y-scroll">
